@@ -1,0 +1,211 @@
+\documentclass[a4paper,10pt,twocolumn,oneside]{article}
+\setlength{\columnsep}{10pt}                                                                    %兩欄模式的間距
+\setlength{\columnseprule}{0pt}                                                                %兩欄模式間格線粗細
+
+\usepackage{amsthm}								%定義，例題
+\usepackage{amssymb}
+%\usepackage[margin=2cm]{geometry}
+\usepackage{fontspec}								%設定字體
+\usepackage{color}
+\usepackage[x11names]{xcolor}
+\usepackage{listings}								%顯示code用的
+\usepackage[Glenn]{fncychap}						%排版，頁面模板
+\usepackage{fancyhdr}								%設定頁首頁尾
+\usepackage{graphicx}								%Graphic
+\usepackage{enumerate}
+\usepackage{changepage}
+\usepackage{titlesec}
+\usepackage{amsmath}
+\usepackage{codebook}
+\usepackage[CheckSingle, CJKmath]{xeCJK}
+% \usepackage{CJKulem}
+
+%\usepackage[T1]{fontenc}
+\usepackage{amsmath, courier, listings, fancyhdr, graphicx}
+\topmargin=0pt
+\headsep=5pt
+\textheight=780pt
+\footskip=0pt
+\voffset=-40pt
+\textwidth=545pt
+\marginparsep=0pt
+\marginparwidth=0pt
+\marginparpush=0pt
+\oddsidemargin=0pt
+\evensidemargin=0pt
+\hoffset=-42pt
+
+%\renewcommand\listfigurename{圖目錄}
+%\renewcommand\listtablename{表目錄} 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\setmainfont{Consolas}				%主要字型
+\setmonofont{Monaco}				%主要字型
+%\setCJKmainfont{Source Han Sans}
+% \setCJKmainfont{Consolas}			%中文字型
+%\setmainfont{sourcecodepro}
+\XeTeXlinebreaklocale "zh"						%中文自動換行
+\XeTeXlinebreakskip = 0pt plus 1pt				%設定段落之間的距離
+\setcounter{secnumdepth}{3}						%目錄顯示第三層
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\makeatletter
+\lst@CCPutMacro\lst@ProcessOther {"2D}{\lst@ttfamily{-{}}{-{}}}
+\@empty\z@\@empty
+\makeatother
+\lstset{											% Code顯示
+language=C++,										% the language of the code
+basicstyle=\ttfamily, 						% the size of the fonts that are used for the code
+%numbers=left,										% where to put the line-numbers
+numberstyle=\footnotesize,						% the size of the fonts that are used for the line-numbers
+stepnumber=1,										% the step between two line-numbers. If it's 1, each line  will be numbered
+numbersep=5pt,										% how far the line-numbers are from the code
+backgroundcolor=\color{white},					% choose the background color. You must add \usepackage{color}
+showspaces=false,									% show spaces adding particular underscores
+showstringspaces=false,							% underline spaces within strings
+showtabs=false,									% show tabs within strings adding particular underscores
+frame=false,											% adds a frame around the code
+tabsize=2,											% sets default tabsize to 2 spaces
+captionpos=b,										% sets the caption-position to bottom
+breaklines=true,									% sets automatic line breaking
+breakatwhitespace=false,							% sets if automatic breaks should only happen at whitespace
+escapeinside={\%*}{*)},							% if you want to add a comment within your code
+morekeywords={*},									% if you want to add more keywords to the set
+keywordstyle=\bfseries\color{Blue1},
+commentstyle=\itshape\color{Red4},
+stringstyle=\itshape\color{Green4}
+}
+
+
+\university{oRZCk}{National Taiwan University}{ntu}
+\team{oRZCk}{rgnerdplayer, ZCKevin, cychien}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{document}
+% \maketeampage % cover page
+\pagestyle{fancy}
+\fancyfoot{}
+%\fancyfoot[R]{\includegraphics[width=20pt]{ironwood.jpg}}
+\fancyhead[L]{National Taiwan University oRZCk}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\contentsname}{Contents} 
+\scriptsize
+\begingroup
+\let\clearpage\relax
+% \tableofcontents
+\endgroup
+\tableofcontents
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \newpage
+
+\section{Basic}
+\code{vimrc}{basic/vimrc}
+\code{Default code}{basic/default.cpp}
+\code{Fast Integer Input}{basic/fastInput.cpp}
+\code{Pragma optimization}{basic/pragma.cpp}
+
+\section{Flows, Matching}
+\code{Flow}{flow/Flow.cpp}
+\code{MCMF}{flow/MinCostMaxflow.cpp}
+\code{GomoryHu Tree}{flow/gomory.cpp}
+\code{Global Minimum Cut}{flow/GlobalMinCut.cpp}
+\code{Bipartite Matching}{flow/BipartiteMatching.cpp}
+\code{GeneralMatching}{flow/GeneralMatching.cpp}
+\code{Kuhn Munkeres}{flow/KM.cpp}
+\tex{Flow Models}{flow/Model.tex}
+
+\section{Data Structure}
+\code{<ext/pbds>}{data-structure/darkMagic.cpp}
+\code{Li Chao Tree}{data-structure/LiChaoTree.cpp}
+\code{Treap}{data-structure/Treap.cpp}
+\code{Link-Cut Tree}{data-structure/LCT.cpp}
+
+\section{Graph}
+\code{Heavy-Light Decomposition}{graph/HLD.cpp}
+\code{Centroid Decomposition}{graph/CD.cpp}
+\code{Strongly Connected Components}{graph/SCC.cpp}
+\code{2-SAT}{graph/2SAT.cpp}
+\code{Minimum Mean Cycle}{graph/MinMeanWeightCycle.cpp}
+\code{Minimum Steiner Tree}{graph/MinimumSteinerTree.cpp}
+\code{Directed Minimum Spanning Tree}{graph/DirectedMST.cpp}
+\code{Maximum Clique}{graph/MaxClique.cpp}
+\code{Tarjan's Algorithm}{graph/Tarjan.cpp}
+\code{Dominator Tree}{graph/DominatorTree.cpp}
+\code{Virtual Tree}{graph/VirtualTree.cpp}
+\code{Vizing's Theorem}{graph/vizing.cpp}
+\tex{System of Difference Constraints}{graph/SystemOfDifferenceConstraints.tex}
+
+\section{String}
+\code{Prefix Function}{string/prefixFunction.cpp}
+\code{Z Function}{string/zFunction.cpp}
+\code{Suffix Array}{string/SuffixArray.cpp}
+\code{Manacher's Algorithm}{string/Manacher.cpp}
+\code{Aho-Corasick Automaton}{string/AhoCorasick.cpp}
+\code{Suffix Automaton}{string/SuffixAutomaton.cpp}
+\code{Lexicographically Smallest Rotation}{string/minRotation.cpp}
+
+\section{Math}
+\code{Fast Fourier Transform}{math/FFT2.cpp}
+\code{NTT and polynomials}{math/Poly.cpp}
+\tex{NTT Prime List}{math/NTTprime.tex}
+\tex{Newton's Method}{math/Newton.tex}
+\tex{Fast Walsh-Hadamard Transform}{math/FWT.tex}
+\codewithtext{Simplex Algorithm}{math/Simplex.cpp}{maximize $\mathbf{c}^T\mathbf{x}$ subject to $A\mathbf{x} \leq \mathbf{b}$ and $\mathbf{x} \geq 0$. Returns $-\infty$ if infeasible and $\infty$ if unbounded.}
+\codewithtext{Subset Convolution}{math/SubsetConv.cpp}{$h(s) = \sum_{s^\prime \subseteq s}f(s^\prime)g(s\setminus s^\prime)$}
+\subsubsection{Construction}
+\input{math/SimplexConstruction.tex}
+\vspace{-2em}
+\code{Schreier–Sims Algorithm}{math/SchreierSims.cpp}
+\code{Berlekamp-Massey Algorithm}{math/BerlekampMassey.cpp}
+\code{Fast Linear Recurrence}{math/LinearRec.cpp}
+\code{Prime check and factorize}{math/pollardRho.cpp}
+\code{Meissel–Lehmer Algorithm}{math/PiCount.cpp}
+\code{Discrete Logarithm}{math/discreteLog.cpp}
+\code{Quadratic Residue}{math/QuadraticResidue.cpp}
+\code{Gaussian Elimination}{math/GaussElimination.cpp}
+\code{Characteristic Polynomial}{math/CharacteristicPoly.cpp}
+\code{Linear Sieve Related}{math/sieve.cpp}
+\code{Partition Function}{math/Partition.cpp}
+\code{De Bruijn Sequence}{math/DeBruijn.cpp}
+\code{Extended GCD}{math/extGcd.cpp}
+\tex{Euclidean Algorithms}{math/Euclidean.tex}
+\code{Floor Sum}{math/floorSum.cpp}
+\code{Chinese Remainder Theorem}{math/CRT.cpp}
+\tex{Theorem}{math/Theorem.tex}
+
+\section{Dynamic Programming}
+\code{Dynamic Convex Hull}{dynamic-programming/DynamicConvexHullMax.cpp}
+\code{$1D/1D$ Convex Optimization}{dynamic-programming/convex1d1d.cpp}
+\tex{Conditon}{dynamic-programming/Condition.tex}
+
+\section{Geometry}
+\code{Basic}{geometry/Point2D.cpp}
+\code{KD Tree}{geometry/KDTree.cpp}
+\codewithtext{Delaunay Triangulation}{geometry/Triangulation.cpp}{Fast Delaunay triangulation assuming no duplicates and not all points collinear (in latter case, result will be empty). Should work for doubles as well, though there may be precision issues in 'circ'.  Returns triangles in ccw order. Each circumcircle will contain none of the input points. If coordinates are ints at most $B$ then \texttt{T} should be large enough to support ints on the order of $B^4$. We don't need \texttt{double} in \texttt{Point} if the coordinates are integers.}
+\codewithtext{Voronoi Diagram}{geometry/Triangulation_Vonoroi_short.cpp}{Vertices in Voronoi Diagram are circumcenters of triangles in the Delaunay Triangulation.}
+\code{Sector Area}{geometry/sectorArea.cpp}
+\code{Half Plane Intersection}{geometry/halfPlaneIntersect.cpp}
+\code{Triangle Center}{geometry/triangleCenter.cpp}
+\code{Polygon Center}{geometry/center.cpp}
+\code{Maximum Triangle}{geometry/maxTriangleOfConvex.cpp}
+\code{Point in Polygon}{geometry/pointInPolygon.cpp}
+\code{Circle}{geometry/circle.cpp}
+\code{Tangent of Circles and Points to Circle}{geometry/CircleTangent.cpp}
+\code{Area of Union of Circles}{geometry/circleOrArea.cpp}
+\code{Minimun Distance of 2 Polygons}{geometry/minDistOfTwoConvex.cpp}
+\code{2D Convex Hull}{geometry/convexHull.cpp}
+\code{3D Convex Hull}{geometry/convex3D.cpp}
+\code{Minimum Enclosing Circle}{geometry/MinimumEnclosingCircle.cpp}
+\code{Closest Pair}{geometry/ClosestPair.cpp}
+
+\section{Miscellaneous}
+\code{Cactus}{misc/BCT.cpp}
+\code{Dancing Links}{misc/DLX.cpp}
+\code{Offline Dynamic MST}{misc/DynamicMST.cpp}
+\code{Manhattan Distance MST}{misc/ManhattanMST.cpp}
+\code{Matroid Intersection}{misc/matroid.cpp}
+
+\end{document}

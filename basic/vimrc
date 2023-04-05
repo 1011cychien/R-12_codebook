@@ -1,0 +1,8 @@
+set nu rnu cin ts=4 sw=4 autoread hls
+sy on
+map<leader>b :w<bar>!g++ -std=c++17 '%' -DKEV -fsanitize=undefined -o /tmp/.run<CR>
+map<leader>r :w<bar>!cat 01.in && echo "---" && /tmp/.run < 01.in<CR>
+map<leader>i :!/tmp/.run<CR>
+map<leader>c I//<Esc>
+map<leader>y :%y+<CR>
+map<leader>l :%d<bar>0r ~/t.cpp<CR>
