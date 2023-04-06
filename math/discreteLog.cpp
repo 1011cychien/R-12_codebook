@@ -1,4 +1,5 @@
-// a ^ x = b mod m, 0 ^ 0 = 1, -1 if no solution
+// return min x >= 0 s.t. a ^ x = b mod m, 0 ^ 0 = 1, -1 if no solution
+// if x > 0, change q <= n to q < n
 int discreteLog(int a, int b, int m) {
     a %= m, b %= m;
     int k = 1, add = 0, g;
