@@ -1,6 +1,9 @@
 // return min x >= 0 s.t. a ^ x = b mod m, 0 ^ 0 = 1, -1 if no solution
-// if x > 0, change q <= n to q < n
+// (I think) if you want x > 0 (m != 1), remove if (b == k) return add;
 int discreteLog(int a, int b, int m) {
+    if (m == 1) {
+        return 0;
+    }
     a %= m, b %= m;
     int k = 1, add = 0, g;
     while ((g = gcd(a, m)) > 1) {
@@ -12,13 +15,16 @@ int discreteLog(int a, int b, int m) {
         b /= g, m /= g, ++add;
         k = 1LL * k * a / g % m;
     }
+    if (b == k) {
+        return add;
+    }
     int n = sqrt(m) + 1;
     int an = 1;
     for (int i = 0; i < n; ++i) {
         an = 1LL * an * a % m;
     }
     unordered_map<int, int> vals;
-    for (int q = 0, cur = b; q <= n; ++q) {
+    for (int q = 0, cur = b; q < n; ++q) {
         vals[cur] = q;
         cur = 1LL * a * cur % m;
     }
