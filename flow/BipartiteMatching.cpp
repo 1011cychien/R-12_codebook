@@ -51,15 +51,6 @@ struct BipartiteMatching {
         }
         return match;
     }
-    auto getMatching() {
-        vector<pair<int, int>> res;
-        for (int u = 0; u < n; u++) {
-            if (l[u] != -1) {
-                res.emplace_back(u, l[u]);
-            }
-        }
-        return res;
-    }
     auto minVertexCover() {
         vector<int> L, R;
         for (int u = 0; u < n; u++) {
