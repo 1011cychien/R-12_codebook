@@ -1,3 +1,35 @@
+// bipartite
+vector<int> ans(m, -1);
+vector has(a + b, vector<pair<int, int>>(col, {-1, -1}));
+for (int i = 0; i < m; i++) {
+    auto [u, v] = e[i];
+    vector<int> c;
+    for (auto x : {u, v}) {
+        c.push_back(0);
+        while (has[x][c.back()].first != -1) {
+            c.back()++;
+        }
+    }
+    if (c[0] != c[1]) {
+        auto dfs = [&](auto self, int u, int x) -> void {
+            auto [v, i] = has[u][c[x]];
+            if (v != -1) {
+                if (has[v][c[x ^ 1]].first != -1) {
+                    self(self, v, x ^ 1);
+                } else {
+                    has[v][c[x]] = {-1, -1};
+                }
+                has[u][c[x ^ 1]] = {v, i}, has[v][c[x ^ 1]] = {u, i};
+                ans[i] = c[x ^ 1];
+            }
+        };
+        dfs(dfs, v, 0);
+    }
+    has[u][c[0]] = {v, i};
+    has[v][c[0]] = {u, i};
+    ans[i] = c[0];
+}
+// general
 auto vizing(int n, const vector<pair<int, int>> &e) {
     vector<int> deg(n);
     for (auto [u, v] : e) {

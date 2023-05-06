@@ -5,3 +5,4 @@ a.out
 *LOCAL*
 .DS_Store
 Codebook/test/*
+*.json
