@@ -1,10 +1,8 @@
 struct EBCC {
-    int n;
+    int n, cur, comps;
     vector<vector<int>> g;
-    vector<int> stk;
-    vector<int> dfn, low, id;
-    int cur, cnt;
-    EBCC(const vector<vector<int>> &g, int root = 0) : n(g.size()), g(g), dfn(n, -1), low(n), id(n, -1), cur(0), cnt(0) {
+    vector<int> stk, dfn, low, id;
+    EBCC(const vector<vector<int>> &g, int root = 0) : n(g.size()), cur(0), comps(0), g(g), dfn(n, -1), low(n), id(n, -1) {
         dfs(root, -1);
     }
     void dfs(int u, int p) {
@@ -24,11 +22,11 @@ struct EBCC {
         if (dfn[u] == low[u]) {
             int x;
             do {
-                v = stk.back();
-                id[x] = cnt;
+                x = stk.back();
+                id[x] = comps;
                 stk.pop_back();
             } while (x != u);
-            cnt++;
+            comps++;
         }
     }
 };
