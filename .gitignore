@@ -1,6 +1,6 @@
-codebook.aux
-codebook.toc
-codebook.log
+*.aux
+*.toc
+*.log
 a.out
 *LOCAL*
 .DS_Store
