@@ -1,9 +1,9 @@
 struct HLD {
-    int n;
+    int n, cur = 0;
     vector<int> sz, top, dep, par, tin, tout, seq;
     vector<vector<int>> g;
-    int cur;
-    HLD(const vector<vector<int>> &g, int root = 0) : n(g.size()), sz(n, 1), top(n), dep(n), par(n), tin(n), tout(n), seq(n), cur(0), g(g) {
+    HLD() {}
+    HLD(const vector<vector<int>> &g, int root = 0) : n(g.size()), sz(n, 1), top(n), dep(n), par(n), tin(n), tout(n), seq(n), g(g) {
         top[root] = root;
         dep[root] = 0;
         par[root] = -1;
@@ -31,7 +31,7 @@ struct HLD {
             top[v] = v == g[u][0] ? top[u] : v;
             dfs2(v);
         }
-        tout[u] = cur;
+        tout[u] = cur - 1;
     }
     int lca(int u, int v) {
         while (top[u] != top[v]) {
@@ -58,7 +58,7 @@ struct HLD {
     }
     // u is v's ancestor
     bool isAncestor(int u, int v) {
-        return tin[u] <= tin[v] && tin[v] < tout[u];
+        return tin[u] <= tin[v] && tin[v] <= tout[u];
     }
     // rooted at u, v's parent, root's parent is itself
     int rootedParent(int u, int v) {
