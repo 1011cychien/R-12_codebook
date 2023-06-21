@@ -42,7 +42,7 @@ template <typename T>
             rmq.assign(lg + 1, vector<int>(n - 1));
             rmq[0] = ha;
             for (int i = 1; i <= lg; i++) {
-                for (int j = 0; j + (1 << i) <= n; j++) {
+                for (int j = 0; j + (1 << i) < n; j++) {
                     rmq[i][j] = min(rmq[i - 1][j], rmq[i - 1][j + (1 << i - 1)]);
                 }
             }
