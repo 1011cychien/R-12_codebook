@@ -1,9 +1,10 @@
 struct HLD {
-    int n, cur = 0;
+    int n, root = 0, cur = 0;
     vector<int> sz, top, dep, par, tin, tout, seq;
     vector<vector<int>> g;
-    HLD() {}
-    HLD(const vector<vector<int>> &g, int root = 0) : n(g.size()), sz(n, 1), top(n), dep(n), par(n), tin(n), tout(n), seq(n), g(g) {
+    HLD(int n, int root = 0) : n(n), root(root), sz(n, 1), top(n), dep(n), par(n), tin(n), tout(n), seq(n), g(n) {}
+    void addEdge(int u, int v) { g[u].push_back(v), g[v].push_back(u); }
+    void build() {
         top[root] = root;
         dep[root] = 0;
         par[root] = -1;
@@ -11,8 +12,8 @@ struct HLD {
         dfs2(root);
     }
     void dfs1(int u) {
-        if (par[u] != -1) {
-            g[u].erase(find(g[u].begin(), g[u].end(), par[u]));
+        if (auto it = find(g[u].begin(), g[u].end(), par[u]); it != g[u].end()) {
+            g[u].erase(it);
         }
         for (auto &v : g[u]) {
             par[v] = u;
