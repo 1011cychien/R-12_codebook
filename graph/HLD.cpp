@@ -1,10 +1,10 @@
 struct HLD {
-    int n, root = 0, cur = 0;
+    int n, cur = 0;
     vector<int> sz, top, dep, par, tin, tout, seq;
     vector<vector<int>> g;
-    HLD(int n, int root = 0) : n(n), root(root), sz(n, 1), top(n), dep(n), par(n), tin(n), tout(n), seq(n), g(n) {}
+    HLD(int n) : n(n), sz(n, 1), top(n), dep(n), par(n), tin(n), tout(n), seq(n), g(n) {}
     void addEdge(int u, int v) { g[u].push_back(v), g[v].push_back(u); }
-    void build() {
+    void build(int root = 0) {
         top[root] = root;
         dep[root] = 0;
         par[root] = -1;
