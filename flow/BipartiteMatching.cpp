@@ -44,7 +44,7 @@ struct BipartiteMatching {
                     cnt += dfs(u);
                 }
             }
-            if (!cnt) {
+            if (cnt == 0) {
                 break;
             }
             match += cnt;
