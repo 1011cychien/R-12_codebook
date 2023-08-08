@@ -81,34 +81,4 @@ struct MinCostMaxFlow {
         }
         return make_pair(flow, cost);
     }
-    pair<Flow, Cost> maxFlow2(int s, int t) {
-        Flow flow = 0;
-        Cost cost = 0;
-        h.assign(n, 0);
-        // Johnson's potential
-        // Note that the graph must be DAG, and all edges must have u < v (S = 0, T = lst?)
-        for (int i = 0; i < n; i++) {
-            for (auto j : g[i]) {
-                if (e[j].to > i) {
-                    h[e[j].to] = min(h[e[j].to], h[i] + e[j].cost);
-                }
-            }
-        }
-        while (dijkstra(s, t)) {
-            for (int i = 0; i < n; ++i) {
-                h[i] += dis[i];
-            }
-            Flow aug = flowINF;
-            for (int i = t; i != s; i = e[pre[i] ^ 1].to) {
-                aug = min(aug, e[pre[i]].cap);
-            }
-            for (int i = t; i != s; i = e[pre[i] ^ 1].to) {
-                e[pre[i]].cap -= aug;
-                e[pre[i] ^ 1].cap += aug;
-            }
-            flow += aug;
-            cost += aug * h[t];
-        }
-        return make_pair(flow, cost);
-    }
 };

@@ -8,9 +8,9 @@ struct Flow {
     };
     int n;
     vector<Edge> e;
-    vector<vector<int>> g;
+    vector<vector<int>> adj;
     vector<int> cur, h;
-    Flow(int n) : n(n), g(n) {}
+    Flow(int n) : n(n), adj(n) {}
     bool bfs(int s, int t) {
         h.assign(n, -1);
         queue<int> q;
@@ -19,13 +19,11 @@ struct Flow {
         while (!q.empty()) {
             int u = q.front();
             q.pop();
-            for (int i : g[u]) {
+            for (int i : adj[u]) {
                 auto [v, c] = e[i];
                 if (c > 0 && h[v] == -1) {
                     h[v] = h[u] + 1;
-                    if (v == t) {
-                        return true;
-                    }
+                    if (v == t) { return true; }
                     q.push(v);
                 }
             }
@@ -33,31 +31,25 @@ struct Flow {
         return false;
     }
     F dfs(int u, int t, F f) {
-        if (u == t) {
-            return f;
-        }
+        if (u == t) { return f; }
         F r = f;
-        for (int &i = cur[u]; i < int(g[u].size()); i++) {
-            int j = g[u][i];
+        for (int &i = cur[u]; i < int(adj[u].size()); i++) {
+            int j = adj[u][i];
             auto [v, c] = e[j];
             if (c > 0 && h[v] == h[u] + 1) {
                 F a = dfs(v, t, min(r, c));
                 e[j].cap -= a;
                 e[j ^ 1].cap += a;
                 r -= a;
-                if (r == 0) {
-                    return f;
-                }
+                if (r == 0) { return f; }
             }
         }
         return f - r;
     }
     // can be bidirectional
     void addEdge(int u, int v, F cf = INF, F cb = 0) {
-        g[u].push_back(e.size());
-        e.emplace_back(v, cf);
-        g[v].push_back(e.size());
-        e.emplace_back(u, cb);
+        adj[u].push_back(e.size()), e.emplace_back(v, cf);
+        adj[v].push_back(e.size()), e.emplace_back(u, cb);
     }
     F maxFlow(int s, int t) {
         F ans = 0;
@@ -70,9 +62,7 @@ struct Flow {
     // do max flow first
     vector<int> minCut() {
         vector<int> res(n);
-        for (int i = 0; i < n; i++) {
-            res[i] = h[i] != -1;
-        }
+        for (int i = 0; i < n; i++) { res[i] = h[i] != -1; }
         return res;
     }
 };

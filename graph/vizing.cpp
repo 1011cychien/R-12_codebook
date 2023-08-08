@@ -1,4 +1,6 @@
 // bipartite
+e[i] = pair(u, v + a), deg[u]++, deg[v + a]++;
+int col = *max_element(deg.begin(), deg.end());
 vector<int> ans(m, -1);
 vector has(a + b, vector<pair<int, int>>(col, {-1, -1}));
 for (int i = 0; i < m; i++) {
@@ -6,16 +8,14 @@ for (int i = 0; i < m; i++) {
     vector<int> c;
     for (auto x : {u, v}) {
         c.push_back(0);
-        while (has[x][c.back()].first != -1) {
-            c.back()++;
-        }
+        while (has[x][c.back()].first != -1) { c.back()++; }
     }
     if (c[0] != c[1]) {
-        auto dfs = [&](auto self, int u, int x) -> void {
+        auto dfs = [&](auto dfs, int u, int x) -> void {
             auto [v, i] = has[u][c[x]];
             if (v != -1) {
                 if (has[v][c[x ^ 1]].first != -1) {
-                    self(self, v, x ^ 1);
+                    dfs(dfs, v, x ^ 1);
                 } else {
                     has[v][c[x]] = {-1, -1};
                 }

@@ -38,22 +38,6 @@
         \item For $v \in G$, connect it with sink $v \rightarrow t$ with capacity $K + 2T - (\sum_{e \in E(v)}{w(e)}) - 2w(v)$
         \item $T$ is a valid answer if the maximum flow $f < K \lvert V \rvert$
     \end{enumerate}
-    \item Minimum weight edge cover
-    \vspace{-1em}
-    \begin{enumerate}
-        \itemsep-0.3em
-      \item For each $v \in V$ create a copy $v^\prime$, and connect $u^\prime \to v^\prime$ with weight $w(u, v)$.
-      \item Connect $v \to v^\prime$ with weight $2\mu(v)$, where $\mu(v)$ is the cost of the cheapest edge incident to $v$.
-      \item Find the minimum weight perfect matching on $G^\prime$.
-    \end{enumerate}
-    \item Project selection problem
-    \vspace{-1em}
-    \begin{enumerate}
-      \itemsep-0.3em
-      \item If $p_v > 0$, create edge $(s, v)$ with capacity $p_v$; otherwise, create edge $(v, t)$ with capacity $-p_v$.
-      \item Create edge $(u, v)$ with capacity $w$ with $w$ being the cost of choosing $u$ without choosing $v$.
-      \item The mincut is equivalent to the maximum profit of a subset of projects.
-    \end{enumerate}
     \item 0/1 quadratic programming
     \vspace{-1em}
     \[ \sum_x{c_xx} + \sum_y{c_y\bar{y}} + \sum_{xy}c_{xy}x\bar{y} + \sum_{xyx^\prime y^\prime}c_{xyx^\prime y^\prime}(x\bar{y} + x^\prime\bar{y^\prime}) \]

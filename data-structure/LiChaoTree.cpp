@@ -1,5 +1,5 @@
 // edu13F MLE with non-deleted pointers
-// [) interval for negative numbers
+// [) interval because of negative numbers
 constexpr i64 INF64 = 4e18;
 struct Line {
     i64 a = -INF64, b = -INF64;

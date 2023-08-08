@@ -1,17 +1,15 @@
 struct EBCC {
-    int n, cur, comps;
-    vector<vector<int>> g;
+    int n, cnt = 0, T = 0;
+    vector<vector<int>> adj, comps;
     vector<int> stk, dfn, low, id;
-    EBCC(const vector<vector<int>> &g, int root = 0) : n(g.size()), cur(0), comps(0), g(g), dfn(n, -1), low(n), id(n, -1) {
-        dfs(root, -1);
-    }
+    EBCC(int n) : n(n), adj(n), dfn(n, -1), low(n), id(n, -1) {}
+    void addEdge(int u, int v) { adj[u].push_back(v), adj[v].push_back(u); }
+    void build() { for (int i = 0; i < n; i++) { if (dfn[i] == -1) { dfs(i, -1); }}}
     void dfs(int u, int p) {
-        dfn[u] = low[u] = cur++;
+        dfn[u] = low[u] = T++;
         stk.push_back(u);
-        for (auto v : g[u]) {
-            if (v == p) {
-                continue;
-            }
+        for (auto v : adj[u]) {
+            if (v == p) { continue; }
             if (dfn[v] == -1) {
                 dfs(v, u);
                 low[u] = min(low[u], low[v]);
@@ -21,12 +19,14 @@ struct EBCC {
         }
         if (dfn[u] == low[u]) {
             int x;
+            comps.emplace_back();
             do {
                 x = stk.back();
-                id[x] = comps;
+                comps.back().push_back(x);
+                id[x] = cnt;
                 stk.pop_back();
             } while (x != u);
-            comps++;
+            cnt++;
         }
     }
 };

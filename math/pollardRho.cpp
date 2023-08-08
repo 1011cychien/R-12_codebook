@@ -1,33 +1,15 @@
-i64 mul(i64 a, i64 b, i64 mod) {
-    return __int128_t(a) * b % mod;
-}
-i64 qpow(i64 x, i64 p, i64 mod) {
-    i64 res = 1;
-    while (p > 0) {
-        if (p & 1) {
-            res = mul(res, x, mod);
-        }
-        x = mul(x, x, mod);
-        p >>= 1;
-    }
-    return res;
-}
+i64 mul(i64 a, i64 b, i64 mod) {}
+i64 qpow(i64 x, i64 p, i64 mod) {}
 bool isPrime(i64 n) {
-    if (n == 1) {
-        return false;
-    }
+    if (n == 1) { return false; }
     int r = __builtin_ctzll(n - 1);
     i64 d = n - 1 >> r;
     auto checkComposite = [&](i64 p) {
         i64 x = qpow(p, d, n);
-        if (x == 1 || x == n - 1) {
-            return false;
-        }
+        if (x == 1 || x == n - 1) { return false; }
         for (int i = 1; i < r; i++) {
             x = mul(x, x, n);
-            if (x == n - 1) {
-                return false;
-            }
+            if (x == n - 1) { return false; }
         }
         return true;
     };
@@ -50,18 +32,14 @@ vector<i64> pollardRho(i64 n) {
                     n /= i;
                 }
             }
-            if (n > 1) {
-                res.push_back(n);
-            }
+            if (n > 1) { res.push_back(n); }
             return;
         } else if (isPrime(n)) {
             res.push_back(n);
             return;
         }
         i64 x0 = 2;
-        auto f = [&](i64 x) {
-            return (mul(x, x, n) + 1) % n;
-        };
+        auto f = [&](i64 x) { return (mul(x, x, n) + 1) % n; };
         while (true) {
             i64 x = x0, y = x0, d = 1, power = 1, lam = 0, v = 1;
             while (d == 1) {
