@@ -1,10 +1,10 @@
 struct BipartiteMatching {
     int n, m;
-    vector<vector<int>> g;
+    vector<vector<int>> adj;
     vector<int> l, r, dis, cur;
-    BipartiteMatching(int n, int m) : n(n), m(m), g(n), l(n, -1), r(m, -1), dis(n), cur(n) {}
+    BipartiteMatching(int n, int m) : n(n), m(m), adj(n), l(n, -1), r(m, -1), dis(n), cur(n) {}
     // come on, you know how to write this
-    void addEdge(int u, int v) {}
+    void addEdge(int u, int v) { adj[u].push_back(v); }
     void bfs() {}
     bool dfs(int u) {}
     int maxMatching() {}

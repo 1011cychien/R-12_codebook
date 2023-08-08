@@ -1,11 +1,11 @@
 struct GeneralMatching {
     int n;
-    vector<vector<int>> e;
+    vector<vector<int>> adj;
     vector<int> match;
-    GeneralMatching(int n) : n(n), e(n), match(n, -1) {}
+    GeneralMatching(int n) : n(n), adj(n), match(n, -1) {}
     void addEdge(int u, int v) {
-        e[u].push_back(v);
-        e[v].push_back(u);
+        adj[u].push_back(v);
+        adj[v].push_back(u);
     }
     int maxMatching() {
         vector<int> vis(n), link(n), f(n), dep(n);
@@ -43,7 +43,7 @@ struct GeneralMatching {
             while (!q.empty()){
                 int u = q.front();
                 q.pop();
-                for (auto v : e[u]) {
+                for (auto v : adj[u]) {
                     if (vis[v] == -1) {
                         vis[v] = 0;
                         link[v] = u;

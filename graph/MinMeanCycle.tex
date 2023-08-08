@@ -1,0 +1,4 @@
+create a new vertex $S$, connect $S$ to all vertices with arbitrary weight $(0)$.
+Let $f_i(u)$ be the shortest path from $S$ to $u$ with exactly $i$ edges.
+$$ans = \min_{f_{n + 1}(i) != \infty} \max_{j = 1}^{n} \frac{f_{n + 1}{(i)} - f_{j}{(i)}}{n + 1 - j}$$
+

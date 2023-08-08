@@ -4,11 +4,11 @@ struct GlobalMinCut {
     static constexpr int INF = numeric_limits<F>::max() / 2;
     int n;
     vector<int> vis, wei;
-    vector<vector<int>> g;
-    GlobalMinCut(int n) : n(n), vis(n), wei(n), g(n, vector<int>(n)) {}
+    vector<vector<int>> adj;
+    GlobalMinCut(int n) : n(n), vis(n), wei(n), adj(n, vector<int>(n)) {}
     void addEdge(int u, int v, int w){
-        g[u][v] += w;
-        g[v][u] += w;
+        adj[u][v] += w;
+        adj[v][u] += w;
     }
     int solve() {
         int sz = n;
@@ -30,7 +30,7 @@ struct GlobalMinCut {
                 y = cur;
                 for (int j = 0; j < sz; j++) {
                     if (!vis[j]) {
-                        wei[j] += g[cur][j];
+                        wei[j] += adj[cur][j];
                     }
                 }
             }
@@ -39,12 +39,12 @@ struct GlobalMinCut {
         while (sz > 1) {
             res = min(res, search());
             for (int i = 0; i < sz; i++) {
-                g[x][i] += g[y][i];
-                g[i][x] = g[x][i];
+                adj[x][i] += adj[y][i];
+                adj[i][x] = adj[x][i];
             }
             for (int i = 0; i < sz; i++) {
-                g[y][i] = g[sz - 1][i];
-                g[i][y] = g[i][sz - 1];
+                adj[y][i] = adj[sz - 1][i];
+                adj[i][y] = adj[i][sz - 1];
             }
             sz--;
         }

@@ -1,9 +1,9 @@
 struct BipartiteMatching {
     int n, m;
-    vector<vector<int>> g;
+    vector<vector<int>> adj;
     vector<int> l, r, dis, cur;
-    BipartiteMatching(int n, int m) : n(n), m(m), g(n), l(n, -1), r(m, -1), dis(n), cur(n) {}
-    void addEdge(int u, int v) { g[u].push_back(v); }
+    BipartiteMatching(int n, int m) : n(n), m(m), adj(n), l(n, -1), r(m, -1), dis(n), cur(n) {}
+    void addEdge(int u, int v) { adj[u].push_back(v); }
     void bfs() {
         vector<int> q;
         for (int u = 0; u < n; u++) {
@@ -15,7 +15,7 @@ struct BipartiteMatching {
         }
         for (int i = 0; i < int(q.size()); i++) {
             int u = q[i];
-            for (auto v : g[u]) {
+            for (auto v : adj[u]) {
                 if (r[v] != -1 && dis[r[v]] == -1) {
                     dis[r[v]] = dis[u] + 1;
                     q.push_back(r[v]);
@@ -24,8 +24,8 @@ struct BipartiteMatching {
         }
     }
     bool dfs(int u) {
-        for (int &i = cur[u]; i < int(g[u].size()); i++) {
-            int v = g[u][i];
+        for (int &i = cur[u]; i < int(adj[u].size()); i++) {
+            int v = adj[u][i];
             if (r[v] == -1 || dis[r[v]] == dis[u] + 1 && dfs(r[v])) {
                 l[u] = v, r[v] = u;
                 return true;
