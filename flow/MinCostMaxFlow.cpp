@@ -37,27 +37,6 @@ struct MinCostMaxFlow {
         }
         return dis[t] != costINF;
     }
-    bool dijkstra(int s, int t) {
-        dis.assign(n, costINF);
-        pre.assign(n, -1);
-        priority_queue<pair<Cost, int>, vector<pair<Cost, int>>, greater<>> pq;
-        dis[s] = 0;
-        pq.emplace(0, s);
-        while (!pq.empty()) {
-            auto [d, u] = pq.top();
-            pq.pop();
-            if (dis[u] != d) continue;
-            for (int i : g[u]) {
-                auto [v, cap, cost] = e[i];
-                if (Cost nd = d + h[u] - h[v] + cost; cap > 0 && dis[v] > nd) {
-                    dis[v] = nd;
-                    pre[v] = i;
-                    pq.emplace(dis[v], v);
-                }
-            }
-        }
-        return dis[t] != costINF;
-    }
     void addEdge(int u, int v, Flow cap, Cost cost) {
         g[u].push_back(e.size());
         e.emplace_back(v, cap, cost);

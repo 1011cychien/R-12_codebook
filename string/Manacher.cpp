@@ -1,13 +1,13 @@
-int z[maxn];
-int manacher(const string& s) {
-  string t = ".";
-  for (int i = 0; i < s.length(); ++i) t += s[i], t += '.';
-  int l = 0, r = 0, ans = 0;
-  for (int i = 1; i < t.length(); ++i) {
-    z[i] = (r > i ? min(z[2 * l - i], r - i) : 1);
-    while (i - z[i] >= 0 && i + z[i] < t.length() && t[i - z[i]] == t[i + z[i]]) ++z[i];
-    if (i + z[i] > r) r = i + z[i], l = i;
-  }
-  for (int i = 1; i < t.length(); ++i) ans = max(ans, z[i] - 1);
-  return ans;
+// total length, not radius
+vector<int> manacher(string s) {
+    string t = "#";
+    for (auto c : s) { t += c, t += '#'; }
+    int n = t.size();
+    vector<int> r(n);
+    for (int i = 0, j = 0; i < n; i++) {
+        if (2 * j - i >= 0 && j + r[j] > i) { r[i] = min(r[2 * j - i], j + r[j] - i); }
+        while (i - r[i] >= 0 && i + r[i] < n && t[i - r[i]] == t[i + r[i]]) { r[i]++; }
+        if (i + r[i] > j + r[j]) { j = i; }
+    }
+    return r;
 }
