@@ -1,4 +1,4 @@
-// total length, not radius
+// returns radius of t, length of s : rad(t) - 1, radius of s : rad(t) / 2
 vector<int> manacher(string s) {
     string t = "#";
     for (auto c : s) { t += c, t += '#'; }
