@@ -36,7 +36,7 @@ P<Real> rotate(P<Real> p, Real ang) { return {p.x * cos(ang) - p.y * sin(ang), p
 P<T> direction(L<T> l) { return l.b - l.a; }
 P<Real> projection(P<Real> p, L<Real> l) {
     auto d = direction(l);
-    return a + d * (dot(p - l.a, d) / square(d));
+    return l.a + d * (dot(p - l.a, d) / square(d));
 }
 P<Real> reflection(P<Real> p, L<Real> l) { return projection(p, l) * 2 - p; }
 Real pointToLineDist(P<Real> p, L<Real> l) { return dist(p, projection(p, l)); }
