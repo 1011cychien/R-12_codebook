@@ -3,14 +3,14 @@
 struct BlockCutTree {
     int n, square = 0, cur = 0;
     vector<int> low, dfn, stk;
-    vector<vector<int>> g, bct;
-    BlockCutTree(int n) : n(n), low(n), dfn(n, -1), g(n), bct(n) {}
+    vector<vector<int>> adj, bct;
+    BlockCutTree(int n) : n(n), low(n), dfn(n, -1), adj(n), bct(n) {}
     void build() { dfs(0); }
-    void addEdge(int u, int v) { g[u].push_back(v), g[v].push_back(u); }
+    void addEdge(int u, int v) { adj[u].push_back(v), adj[v].push_back(u); }
     void dfs(int u) {
         low[u] = dfn[u] = cur++;
         stk.push_back(u);
-        for (auto v : g[u]) {
+        for (auto v : adj[u]) {
             if (dfn[v] == -1) {
                 dfs(v);
                 low[u] = min(low[u], low[v]);

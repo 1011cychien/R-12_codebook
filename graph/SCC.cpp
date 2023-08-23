@@ -1,12 +1,12 @@
 struct SCC {
-    int n, cnt = 0, T = 0;
+    int n, cnt = 0, cur = 0;
     vector<int> id, dfn, low, stk;
     vector<vector<int>> adj, comps;
     void addEdge(int u, int v) { adj[u].push_back(v); }
     SCC(int n) : n(n), id(n, -1), dfn(n, -1), low(n, -1), adj(n) {}
     void build() {
         auto dfs = [&](auto dfs, int u) -> void {
-            dfn[u] = low[u] = T++;
+            dfn[u] = low[u] = cur++;
             stk.push_back(u);
             for (auto v : adj[u]) {
                 if (dfn[v] == -1) {

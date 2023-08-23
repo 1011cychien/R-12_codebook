@@ -147,7 +147,8 @@ stringstyle=\itshape\color{Green4}
 \code{Lexicographically Smallest Rotation}{string/minRotation.cpp}
 
 \section{Math}
-\code{Fast Fourier Transform}{math/FFT2.cpp}
+\code{Extended GCD}{math/extgcd.cpp}
+\code{Chinese Remainder Theorem}{math/CRT.cpp}
 \code{NTT and polynomials}{math/Poly.cpp}
 \tex{NTT Prime List}{math/NTTprime.tex}
 \tex{Newton's Method}{math/Newton.tex}
@@ -168,9 +169,8 @@ stringstyle=\itshape\color{Green4}
 \code{Linear Sieve Related}{math/sieve.cpp}
 \code{Partition Function}{math/Partition.cpp}
 \code{De Bruijn Sequence}{math/DeBruijn.cpp}
-\code{Extended GCD}{math/extGcd.cpp}
-\tex{Euclidean Algorithms}{math/Euclidean.tex}
 \code{Floor Sum}{math/floorSum.cpp}
+\tex{More Floor Sum}{math/Euclidean.tex}
 \code{Chinese Remainder Theorem}{math/CRT.cpp}
 \tex{Theorem}{math/Theorem.tex}
 
@@ -180,23 +180,18 @@ stringstyle=\itshape\color{Green4}
 \tex{Conditon}{dynamic-programming/Condition.tex}
 
 \section{Geometry}
-\code{Basic}{geometry/Point2D.cpp}
-\code{KD Tree}{geometry/KDTree.cpp}
-\codewithtext{Delaunay Triangulation}{geometry/Triangulation.cpp}{Fast Delaunay triangulation assuming no duplicates and not all points collinear (in latter case, result will be empty). Should work for doubles as well, though there may be precision issues in 'circ'.  Returns triangles in ccw order. Each circumcircle will contain none of the input points. If coordinates are ints at most $B$ then \texttt{T} should be large enough to support ints on the order of $B^4$. We don't need \texttt{double} in \texttt{Point} if the coordinates are integers.}
-\codewithtext{Voronoi Diagram}{geometry/Triangulation_Vonoroi_short.cpp}{Vertices in Voronoi Diagram are circumcenters of triangles in the Delaunay Triangulation.}
-\code{Sector Area}{geometry/sectorArea.cpp}
+\code{Basic}{geometry/2d_basic.cpp}
+\code{Triangle Centers}{geometry/centers.cpp}
+\code{Convex Hull and related}{geometry/hull.cpp}
+\code{Closest Pair}{geometry/ClosestPair.cpp}
 \code{Half Plane Intersection}{geometry/halfPlaneIntersect.cpp}
-\code{Triangle Center}{geometry/triangleCenter.cpp}
-\code{Polygon Center}{geometry/center.cpp}
-\code{Maximum Triangle}{geometry/maxTriangleOfConvex.cpp}
-\code{Point in Polygon}{geometry/pointInPolygon.cpp}
 \code{Circle}{geometry/circle.cpp}
 \code{Tangent of Circles and Points to Circle}{geometry/CircleTangent.cpp}
 \code{Area of Union of Circles}{geometry/circleOrArea.cpp}
 \code{Minimun Distance of 2 Polygons}{geometry/minDistOfTwoConvex.cpp}
-\code{2D Convex Hull}{geometry/convexHull.cpp}
 \code{3D Convex Hull}{geometry/convex3D.cpp}
-\code{Closest Pair}{geometry/ClosestPair.cpp}
+\codewithtext{Delaunay Triangulation}{geometry/Triangulation.cpp}{Fast Delaunay triangulation assuming no duplicates and not all points collinear (in latter case, result will be empty). Should work for doubles as well, though there may be precision issues in 'circ'.  Returns triangles in ccw order. Each circumcircle will contain none of the input points. If coordinates are ints at most $B$ then \texttt{T} should be large enough to support ints on the order of $B^4$. We don't need \texttt{double} in \texttt{Point} if the coordinates are integers.}
+\codewithtext{Voronoi Diagram}{geometry/Triangulation_Vonoroi_short.cpp}{Vertices in Voronoi Diagram are circumcenters of triangles in the Delaunay Triangulation.}
 
 \section{Miscellaneous}
 \code{Cactus}{misc/BCT.cpp}
