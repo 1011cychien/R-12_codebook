@@ -10,10 +10,7 @@ P<Real> circumCenter(P<Real> a, P<Real> b, P<Real> c) {
     return a - P<Real>(ba.y * dc - ca.y * db, ca.x * db - ba.x * dc) / d;
 }
 P<Real> orthoCenter(P<Real> a, P<Real> b, P<Real> c) {
-    P ba = b - a, ca = c - a, bc = b - c;
-    Real Y = ba.y * ca.y * bc.y;
-    Real A = ca.x * ba.y - ba.x * ca.y;
-    Real x0 = (Y + ca.x * ba.y * b.x - ba.x * ca.y * c.x) / A;
-    Real y0 = -ba.x * (x0 - c.x) / ba.y + ca.y;
-    return {x0, y0};
+    L<Real> u(c, P<Real>(c.x - a.y + b.y, c.y + a.x - b.x));
+    L<Real> v(b, P<Real>(b.x - a.y + c.y, b.y + a.x - c.x));
+    return lineIntersection(u, v);
 }

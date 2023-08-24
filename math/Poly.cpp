@@ -128,10 +128,6 @@ template<class F>
         a.resize(tot);
         return a;
     }
-    friend Poly operator*(Mint a, Poly b) {
-        for (int i = 0; i < int(b.size()); i++) { b[i] = b[i] * a; }
-        return b;
-    }
     friend Poly operator*(Poly a, Mint b) {
         for (int i = 0; i < int(a.size()); i++) { a[i] = a[i] * b; }
         return a;
@@ -192,8 +188,10 @@ template<class F>
         }
         return x.modxk(m);
     }
-    Poly mulT(Poly b) const {
-        if (b.size() == 0) { return Poly(); }
+    Poly mulT(Poly b) {
+        if (b.size() == 0) {
+            return Poly();
+        }
         int n = b.size();
         reverse(b.a.begin(), b.a.end());
         return ((*this) * b).divxk(n - 1);
@@ -206,7 +204,7 @@ template<class F>
         x.resize(n);
         auto build = [&](auto build, int id, int l, int r) -> void {
             if (r - l == 1) {
-                q[id] = Poly({1, -x[l].v});
+                q[id] = Poly({1, -x[l]});
             } else {
                 int m = (l + r) / 2;
                 build(build, 2 * id, l, m);
@@ -235,7 +233,7 @@ Poly<P> interpolate(vector<Modint<P>> x, vector<Modint<P>> y) {
     vector<Poly<P>> p(4 * n), q(4 * n);
     auto dfs1 = [&](auto dfs1, int id, int l, int r) -> void {
         if (l == r) {
-            p[id] = Poly<P>({-x[l].v, 1});
+            p[id] = Poly<P>({-x[l], 1});
             return;
         }
         int m = l + r >> 1;
@@ -247,7 +245,7 @@ Poly<P> interpolate(vector<Modint<P>> x, vector<Modint<P>> y) {
     Poly<P> f = Poly<P>(p[1].derivative().evaluation(x));
     auto dfs2 = [&](auto dfs2, int id, int l, int r) -> void {
         if (l == r) {
-            q[id] = Poly<P>({y[l] * f[l].inv()});
+            q[id] = Poly<P>({y[l] / f[l]});
             return;
         }
         int m = l + r >> 1;

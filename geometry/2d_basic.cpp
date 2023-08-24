@@ -33,6 +33,7 @@ int side(P<T> p, P<T> a, P<T> b) { return sign(cross(p, a, b)); }
 int side(P<T> p, L<T> l) { return side(p, l.a, l.b); }
 P<T> rotate90(P<T> p) { return {-p.y, p.x}; }
 P<Real> rotate(P<Real> p, Real ang) { return {p.x * cos(ang) - p.y * sin(ang), p.x * sin(ang) + p.y * cos(ang)}; }
+Real angle(P<T> p) { return atan2(p.y, p.x); }
 P<T> direction(L<T> l) { return l.b - l.a; }
 P<Real> projection(P<Real> p, L<Real> l) {
     auto d = direction(l);
