@@ -109,7 +109,7 @@ template<class InputIt>
         return res;
     }
     friend Poly operator*(Poly a, Poly b) {
-        if (a.size() == 0 || b.size() == 0) { return Poly(); }
+        if (a.empty() || b.empty()) { return Poly(); }
         int sz = 1, tot = a.size() + b.size() - 1;
         while (sz < tot) { sz *= 2; }
         a.resize(sz);
