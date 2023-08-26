@@ -1,45 +1,50 @@
-vector<int> BuildDominatorTree(vector<vector<int>> g, int s) {
-  int N = g.size();
-  vector<vector<int>> rdom(N), r(N);
-  vector<int> dfn(N, -1), rev(N, -1), fa(N, -1), sdom(N, -1), dom(N, -1), val(N, -1), rp(N, -1);
-  int stamp = 0;
-  auto Dfs = [&](auto dfs, int x) -> void {
-    rev[dfn[x] = stamp] = x;
-    fa[stamp] = sdom[stamp] = val[stamp] = stamp;
-    stamp++;
-    for (int u : g[x]) {
-      if (dfn[u] == -1) {
-        dfs(dfs, u);
-        rp[dfn[u]] = dfn[x];
-      }
-      r[dfn[u]].push_back(dfn[x]);
+// res : parent of each vertex in dominator tree, -1 is root, -2 if not in tree
+struct DominatorTree {
+    int n, cur = 0;
+    vector<int> dfn, rev, fa, sdom, dom, val, rp, res;
+    vector<vector<int>> adj, rdom, r;
+    DominatorTree(int n) : n(n), dfn(n, -1), rev(n, -1), fa(n, -1), sdom(n, -1), dom(n, -1), val(n, -1), rp(n, -1), res(n, -2), adj(n), rdom(n), r(n) {}
+    void addEdge(int u, int v) {
+        adj[u].push_back(v);
     }
-  };
-  function<int(int, int)> Find = [&](int x, int c) {
-    if (fa[x] == x) return c ? -1 : x;
-    int p = Find(fa[x], 1);
-    if (p == -1) return c ? fa[x] : val[x];
-    if (sdom[val[x]] > sdom[val[fa[x]]]) val[x] = val[fa[x]];
-    fa[x] = p;
-    return c ? p : val[x];
-  };
-  auto Merge = [&](int x, int y) { fa[x] = y; };
-  Dfs(Dfs, s);
-  for (int i = stamp - 1; i >= 0; --i) {
-    for (int u : r[i]) sdom[i] = min(sdom[i], sdom[Find(u, 0)]);
-    if (i) rdom[sdom[i]].push_back(i);
-    for (int u : rdom[i]) {
-      int p = Find(u, 0);
-      if (sdom[p] == i) dom[u] = i;
-      else dom[u] = p;
+    void dfs(int u) {
+        dfn[u] = cur;
+        rev[cur] = u;
+        fa[cur] = sdom[cur] = val[cur] = cur;
+        cur++;
+        for (int v : adj[u]) {
+            if (dfn[v] == -1) {
+                dfs(v);
+                rp[dfn[v]] = dfn[u];
+            }
+            r[dfn[v]].push_back(dfn[u]);
+        }
     }
-    if (i) Merge(i, rp[i]);
-  }
-  vector<int> res(N, -2);
-  res[s] = -1;
-  for (int i = 1; i < stamp; ++i) {
-    if (sdom[i] != dom[i]) dom[i] = dom[dom[i]];
-  }
-  for (int i = 1; i < stamp; ++i) res[rev[i]] = rev[dom[i]];
-  return res;
-}
+    int find(int u, int c) {
+        if (fa[u] == u) { return c != 0 ? -1 : u; }
+        int p = find(fa[u], 1);
+        if (p == -1) { return c != 0 ? fa[u] : val[u]; }
+        if (sdom[val[u]] > sdom[val[fa[u]]]) { val[u] = val[fa[u]]; }
+        fa[u] = p;
+        return c != 0 ? p : val[u];
+    }
+    void build(int s) {
+        dfs(s);
+        for (int i = cur - 1; i >= 0; i--) {
+            for (int u : r[i]) { sdom[i] = min(sdom[i], sdom[find(u, 0)]); }
+            if (i > 0) { rdom[sdom[i]].push_back(i); }
+            for (int u : rdom[i]) {
+                int p = find(u, 0);
+                if (sdom[p] == i) {
+                    dom[u] = i;
+                } else {
+                    dom[u] = p;
+                }
+            }
+            if (i > 0) { fa[i] = rp[i]; }
+        }
+        res[s] = -1;
+        for (int i = 1; i < cur; i++) { if (sdom[i] != dom[i]) { dom[i] = dom[dom[i]]; }}
+        for (int i = 1; i < cur; i++) { res[rev[i]] = rev[dom[i]]; }
+    }
+};
