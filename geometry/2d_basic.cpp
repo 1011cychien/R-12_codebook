@@ -47,7 +47,7 @@ bool parallel(L<T> l1, L<T> l2) { return sign(cross(direction(l1), direction(l2)
 P<Real> lineIntersection(L<T> l1, L<T> l2) { return l1.a - direction(l1) * (Real(cross(direction(l2), l1.a - l2.a)) / cross(direction(l2), direction(l1))); }
 bool between(T m, T l, T r) { return cmp(l, m) == 0 || cmp(m, r) == 0 || l < m != r < m; }
 bool pointOnSeg(P<T> p, L<T> l) { return side(p, l) == 0 && between(p.x, l.a.x, l.b.x) && between(p.y, l.a.y, l.b.y); }
-bool pointStrictlyOnSeg(P<T> p, L<T> l) { return side(p, l) == 0 && sign(dot(p - l.a), direction(l)) * sign(dot(p - l.b), direction(l)) < 0; }
+bool pointStrictlyOnSeg(P<T> p, L<T> l) { return side(p, l) == 0 && sign(dot(p - l.a, direction(l))) * sign(dot(p - l.b, direction(l))) < 0; }
 bool overlap(T l1, T r1, T l2, T r2) {
     if (l1 > r1) { swap(l1, r1); }
     if (l2 > r2) { swap(l2, r2); }
