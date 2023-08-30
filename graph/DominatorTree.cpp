@@ -3,7 +3,9 @@ struct DominatorTree {
     int n, cur = 0;
     vector<int> dfn, rev, fa, sdom, dom, val, rp, res;
     vector<vector<int>> adj, rdom, r;
-    DominatorTree(int n) : n(n), dfn(n, -1), rev(n, -1), fa(n, -1), sdom(n, -1), dom(n, -1), val(n, -1), rp(n, -1), res(n, -2), adj(n), rdom(n), r(n) {}
+    DominatorTree(int n) : n(n), dfn(n, -1), res(n, -2), adj(n), rdom(n), r(n) {
+        rev = fa = sdom = dom = val = rp = dfn;
+    }
     void addEdge(int u, int v) {
         adj[u].push_back(v);
     }
@@ -28,7 +30,7 @@ struct DominatorTree {
         fa[u] = p;
         return c != 0 ? p : val[u];
     }
-    void build(int s) {
+    void build(int s = 0) {
         dfs(s);
         for (int i = cur - 1; i >= 0; i--) {
             for (int u : r[i]) { sdom[i] = min(sdom[i], sdom[find(u, 0)]); }
