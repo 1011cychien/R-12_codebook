@@ -35,6 +35,7 @@ vector<Modint<P>> roots{0, 1};
 template <int P>
 void dft(vector<Modint<P>> &a) {
     int n = a.size();
+    if (n == 1) { return; }
     if (int(rev.size()) != n) {
         int k = __builtin_ctz(n) - 1;
         rev.resize(n);
@@ -53,11 +54,13 @@ void dft(vector<Modint<P>> &a) {
             k++;
         }
     }
+    // fft : just do roots[i] = exp(2 * PI / n * i * complex<double>(0, 1))
     for (int k = 1; k < n; k *= 2) {
         for (int i = 0; i < n; i += 2 * k) {
             for (int j = 0; j < k; j++) {
                 Modint<P> u = a[i + j];
                 Modint<P> v = a[i + j + k] * roots<P>[k + j];
+                // fft : v = a[i + j + k] * roots[n / (2 * k) * j]
                 a[i + j] = u + v;
                 a[i + j + k] = u - v;
             }
