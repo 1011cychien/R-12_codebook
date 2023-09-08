@@ -131,9 +131,8 @@ stringstyle=\itshape\color{Green4}
 \code{2-SAT}{graph/2SAT.cpp}
 \code{count 3-cycles and 4-cycles}{graph/countCycles.cpp}
 \tex{Minimum Mean Cycle}{graph/MinMeanCycle.tex}
-\code{Minimum Steiner Tree}{graph/MinimumSteinerTree.cpp}
 \code{Directed Minimum Spanning Tree}{graph/DMST.cpp}
-\code{Maximum Clique}{graph/MaxClique.cpp}
+\code{Maximum Clique}{graph/maxClique.cpp}
 \code{Dominator Tree}{graph/DominatorTree.cpp}
 \code{Vizing's Theorem}{graph/vizing.cpp}
 
@@ -171,7 +170,6 @@ stringstyle=\itshape\color{Green4}
 \code{De Bruijn Sequence}{math/DeBruijn.cpp}
 \code{Floor Sum}{math/floorSum.cpp}
 \tex{More Floor Sum}{math/Euclidean.tex}
-\code{Chinese Remainder Theorem}{math/CRT.cpp}
 \tex{Theorem}{math/Theorem.tex}
 
 \section{Dynamic Programming}
@@ -181,14 +179,12 @@ stringstyle=\itshape\color{Green4}
 
 \section{Geometry}
 \code{Basic}{geometry/2d_basic.cpp}
-\code{Triangle Centers}{geometry/centers.cpp}
 \code{Convex Hull and related}{geometry/hull.cpp}
-\code{Closest Pair}{geometry/ClosestPair.cpp}
-\code{Half Plane Intersection}{geometry/halfPlaneIntersect.cpp}
+\code{Half Plane Intersection}{geometry/halfPlaneIntersection.cpp}
+\code{Triangle Centers}{geometry/centers.cpp}
 \code{Circle}{geometry/circle.cpp}
-\code{Tangent of Circles and Points to Circle}{geometry/CircleTangent.cpp}
+\code{Closest Pair}{geometry/ClosestPair.cpp}
 \code{Area of Union of Circles}{geometry/circleOrArea.cpp}
-\code{Minimun Distance of 2 Polygons}{geometry/minDistOfTwoConvex.cpp}
 \code{3D Convex Hull}{geometry/convex3D.cpp}
 \codewithtext{Delaunay Triangulation}{geometry/Triangulation.cpp}{Fast Delaunay triangulation assuming no duplicates and not all points collinear (in latter case, result will be empty). Should work for doubles as well, though there may be precision issues in 'circ'.  Returns triangles in ccw order. Each circumcircle will contain none of the input points. If coordinates are ints at most $B$ then \texttt{T} should be large enough to support ints on the order of $B^4$. We don't need \texttt{double} in \texttt{Point} if the coordinates are integers.}
 \codewithtext{Voronoi Diagram}{geometry/Triangulation_Vonoroi_short.cpp}{Vertices in Voronoi Diagram are circumcenters of triangles in the Delaunay Triangulation.}
@@ -199,5 +195,7 @@ stringstyle=\itshape\color{Green4}
 \code{Offline Dynamic MST}{misc/DynamicMST.cpp}
 \code{Manhattan Distance MST}{misc/ManhattanMST.cpp}
 \tex{Matroid Intersection}{misc/Matroid.tex}
+\code{Divide into O(log) Segments}{misc/bitSegDivide.cpp}
+\code{unorganized}{misc/random.cpp}
 
 \end{document}

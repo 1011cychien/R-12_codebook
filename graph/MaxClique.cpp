@@ -1,55 +1,38 @@
-struct MaxClique {
-  // change to bitset for n > 64.
-  int n, deg[maxn];
-  uint64_t adj[maxn], ans;
-  vector<pair<int, int>> edge;
-  void init(int n_) {
-    n = n_;
-    fill(adj, adj + n, 0ull);
-    fill(deg, deg + n, 0);
-    edge.clear();
-  }
-  void add_edge(int u, int v) {
-    edge.emplace_back(u, v);
-    ++deg[u], ++deg[v];
-  }
-  vector<int> operator()() {
-    vector<int> ord(n);
-    iota(ord.begin(), ord.end(), 0);
-    sort(ord.begin(), ord.end(), [&](int u, int v) { return deg[u] < deg[v]; });
-    vector<int> id(n);
-    for (int i = 0; i < n; ++i) id[ord[i]] = i;
-    for (auto e : edge) {
-      int u = id[e.first], v = id[e.second];
-      adj[u] |= (1ull << v);
-      adj[v] |= (1ull << u);
+pair<int, vector<int>> maxClique(const vector<bitset<N>> adj) {
+    int n = adj.size();
+    int mx = 0;
+    vector<int> ans, cur;
+    auto rec = [&](auto rec, bitset<N> s) -> void {
+        int sz = s.count();
+        if (int(cur.size()) > mx) { mx = cur.size(), ans = cur; }
+        if (int(cur.size()) + sz <= mx) { return; }
+        int e1 = -1, e2 = -1;
+        vector<int> d(n);
+        for (int i = 0; i < n; i++) {
+            if (s[i]) {
+                d[i] = (adj[i] & s).count();
+                if (e1 == -1 || d[i] > d[e1]) { e1 = i; }
+                if (e2 == -1 || d[i] < d[e2]) { e2 = i; }
+            }
+        }
+        if (d[e1] >= sz - 2) {
+            cur.push_back(e1);
+            auto s1 = adj[e1] & s;
+            rec(rec, s1);
+            cur.pop_back();
+            return;
+        }
+        cur.push_back(e2);
+        auto s2 = adj[e2] & s;
+        rec(rec, s2);
+        cur.pop_back();
+        s.reset(e2);
+        rec(rec, s);
+    };
+    bitset<N> all;
+    for (int i = 0; i < n; i++) {
+        all.set(i);
     }
-    uint64_t r = 0, p = (1ull << n) - 1;
-    ans = 0;
-    dfs(r, p);
-    vector<int> res;
-    for (int i = 0; i < n; ++i) {
-      if (ans >> i & 1) res.push_back(ord[i]);
-    }
-    return res;
-  }
-#define pcount __builtin_popcountll
-  void dfs(uint64_t r, uint64_t p) {
-    if (p == 0) {
-      if (pcount(r) > pcount(ans)) ans = r;
-      return;
-    }
-    if (pcount(r | p) <= pcount(ans)) return;
-    int x = __builtin_ctzll(p & -p);
-    uint64_t c = p & ~adj[x];
-    while (c > 0) {
-      // bitset._Find_first(); bitset._Find_next();
-      x = __builtin_ctzll(c & -c);
-      r |= (1ull << x);
-      dfs(r, p & adj[x]);
-      r &= ~(1ull << x);
-      p &= ~(1ull << x);
-      c ^= (1ull << x);
-    }
-  }
-};
+    rec(rec, all);
+    return pair(mx, ans);
+}
