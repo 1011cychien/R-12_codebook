@@ -29,6 +29,7 @@ struct SCC {
             }
         };
         for (int i = 0; i < n; i++) { if (dfn[i] == -1) { dfs(dfs, i); }}
+        for (int i = 0; i < n; i++) { id[i] = cnt - 1 - id[i]; }
         reverse(comps.begin(), comps.end());
     }
     // the comps are in topological sorted order
