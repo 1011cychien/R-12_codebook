@@ -35,6 +35,8 @@ P<T> rotate90(P<T> p) { return {-p.y, p.x}; }
 P<Real> rotate(P<Real> p, Real ang) { return {p.x * cos(ang) - p.y * sin(ang), p.x * sin(ang) + p.y * cos(ang)}; }
 Real angle(P<T> p) { return atan2(p.y, p.x); }
 P<T> direction(L<T> l) { return l.b - l.a; }
+bool parallel(L<T> l1, L<T> l2) { return sign(cross(direction(l1), direction(l2))) == 0; }
+bool sameDirection(L<T> l1, L<T> l2) { return parallel(l1, l2) && sign(dot(direction(l1), direction(l2))) == 1; }
 P<Real> projection(P<Real> p, L<Real> l) {
     auto d = direction(l);
     return l.a + d * (dot(p - l.a, d) / square(d));
@@ -43,7 +45,6 @@ P<Real> reflection(P<Real> p, L<Real> l) { return projection(p, l) * 2 - p; }
 Real pointToLineDist(P<Real> p, L<Real> l) { return dist(p, projection(p, l)); }
 // better use integers if you don't need exact coordinate
 // l <= r is not explicitly required
-bool parallel(L<T> l1, L<T> l2) { return sign(cross(direction(l1), direction(l2))) == 0; }
 P<Real> lineIntersection(L<T> l1, L<T> l2) { return l1.a - direction(l1) * (Real(cross(direction(l2), l1.a - l2.a)) / cross(direction(l2), direction(l1))); }
 bool between(T m, T l, T r) { return cmp(l, m) == 0 || cmp(m, r) == 0 || l < m != r < m; }
 bool pointOnSeg(P<T> p, L<T> l) { return side(p, l) == 0 && between(p.x, l.a.x, l.b.x) && between(p.y, l.a.y, l.b.y); }

@@ -105,7 +105,7 @@ template<class InputIt>
         for (int i = 0; i < int(b.size()); i++) { res[i] = res[i] + b[i]; }
         return res;
     }
-    friend Poly operator-(const Poly &a, const Poly &b) {
+    friend Poly operatorkj-(const Poly &a, const Poly &b) {
         Poly res(max(a.size(), b.size()));
         for (int i = 0; i < int(a.size()); i++) { res[i] = res[i] + a[i]; }
         for (int i = 0; i < int(b.size()); i++) { res[i] = res[i] - b[i]; }

@@ -13,6 +13,7 @@ vector<P<T>> convexHull(vector<P<T>> a) {
     b.resize(j - 1);
     return b;
 }
+// warning : if all point on same line will return {1, 2, 3, 2}
 vector<P<T>> convexHullNonStrict(vector<P<T>> a) {
     sort(a.begin(), a.end());
     a.erase(unique(a.begin(), a.end()), a.end());
