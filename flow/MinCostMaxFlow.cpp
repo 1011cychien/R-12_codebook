@@ -1,63 +1,107 @@
-template <typename Flow, typename Cost>
+template <class Flow, class Cost>
 struct MinCostMaxFlow {
-    static constexpr Flow flowINF = numeric_limits<Flow>::max() / 2;
-    static constexpr Cost costINF = numeric_limits<Cost>::max() / 2;
-    struct Edge {
-        int to;
-        Flow cap;
-        Cost cost;
-        Edge(int to, Flow cap, Cost cost) : to(to), cap(cap), cost(cost) {}
-    };
-    int n;
-    vector<Edge> e;
-    vector<vector<int>> g;
-    vector<Cost> h, dis;
-    vector<int> pre;
+public:
+    static constexpr Flow flowINF = numeric_limits<Flow>::max();
+    static constexpr Cost costINF = numeric_limits<Cost>::max();
+    MinCostMaxFlow() {}
     MinCostMaxFlow(int n) : n(n), g(n) {}
-    bool spfa(int s, int t) {
-        dis.assign(n, costINF);
-        pre.assign(n, -1);
-        vector<int> q{s}, inq(n);
-        dis[s] = 0;
-        inq[s] = 1;
-        for (int i = 0; i < int(q.size()); i++) {
-            int u = q[i];
-            inq[u] = 0;
-            for (int j : g[u]) {
-                auto [v, cap, cost] = e[j];
-                if (Cost nd = dis[u] + cost; cap > 0 && nd < dis[v]) {
-                    dis[v] = nd;
-                    pre[v] = j;
-                    if (!inq[v]) {
-                        q.push_back(v);
-                        inq[v] = 1;
+    int addEdge(int u, int v, Flow cap, Cost cost) {
+        int m = int(pos.size());
+        pos.push_back({u, int(g[u].size())});
+        g[u].push_back({v, int(g[v].size()), cap, cost});
+        g[v].push_back({u, int(g[u].size()) - 1, 0, -cost});
+        return m;
+    }
+    struct edge {
+        int u, v;
+        Flow cap, flow;
+        Cost cost;
+    };
+    edge getEdge(int i) {
+        int m = int(pos.size());
+        auto _e = g[pos[i].first][pos[i].second];
+        auto _re = g[_e.v][_e.rev];
+        return {pos[i].first, _e.v, _e.cap + _re.cap, _re.cap, _e.cost};
+    }
+    vector<edge> edges() {
+        int m = int(pos.size());
+        vector<edge> result(m);
+        for (int i = 0; i < m; i++) { result[i] = getEdge(i); }
+        return result;
+    }
+    pair<Flow, Cost> maxFlow(int s, int t, Flow flow_limit = flowINF) { return slope(s, t, flow_limit).back(); }
+    vector<pair<Flow, Cost>> slope(int s, int t, Flow flow_limit = flowINF) {
+        vector<Cost> dual(n, 0), dis(n);
+        vector<int> pv(n), pe(n), vis(n);
+        auto dualRef = [&]() {
+            fill(dis.begin(), dis.end(), costINF);
+            fill(pv.begin(), pv.end(), -1);
+            fill(pe.begin(), pe.end(), -1);
+            fill(vis.begin(), vis.end(), false);
+            struct Q {
+                Cost key;
+                int u;
+                bool operator<(Q o) const { return key > o.key; }
+            };
+            priority_queue<Q> h;
+            dis[s] = 0;
+            h.push({0, s});
+            while (!h.empty()) {
+                int u = h.top().u;
+                h.pop();
+                if (vis[u]) { continue; }
+                vis[u] = true;
+                if (u == t) { break; }
+                for (int i = 0; i < int(g[u].size()); i++) {
+                    auto e = g[u][i];
+                    if (vis[e.v] || e.cap == 0) continue;
+                    Cost cost = e.cost - dual[e.v] + dual[u];
+                    if (dis[e.v] - dis[u] > cost) {
+                        dis[e.v] = dis[u] + cost;
+                        pv[e.v] = u;
+                        pe[e.v] = i;
+                        h.push({dis[e.v], e.v});
                     }
                 }
             }
-        }
-        return dis[t] != costINF;
-    }
-    void addEdge(int u, int v, Flow cap, Cost cost) {
-        g[u].push_back(e.size());
-        e.emplace_back(v, cap, cost);
-        g[v].push_back(e.size());
-        e.emplace_back(u, 0, -cost);
-    }
-    pair<Flow, Cost> maxFlow(int s, int t) {
+            if (!vis[t]) { return false; }
+            for (int v = 0; v < n; v++) {
+                if (!vis[v]) continue;
+                dual[v] -= dis[t] - dis[v];
+            }
+            return true;
+        };
         Flow flow = 0;
-        Cost cost = 0;
-        while (spfa(s, t)) {
-            Flow aug = flowINF;
-            for (int i = t; i != s; i = e[pre[i] ^ 1].to) {
-                aug = min(aug, e[pre[i]].cap);
+        Cost cost = 0, prevCost = -1;
+        vector<pair<Flow, Cost>> result;
+        result.push_back({flow, cost});
+        while (flow < flow_limit) {
+            if (!dualRef()) break;
+            Flow c = flow_limit - flow;
+            for (int v = t; v != s; v = pv[v]) {
+                c = min(c, g[pv[v]][pe[v]].cap);
             }
-            for (int i = t; i != s; i = e[pre[i] ^ 1].to) {
-                e[pre[i]].cap -= aug;
-                e[pre[i] ^ 1].cap += aug;
+            for (int v = t; v != s; v = pv[v]) {
+                auto& e = g[pv[v]][pe[v]];
+                e.cap -= c;
+                g[v][e.rev].cap += c;
             }
-            flow += aug;
-            cost += aug * dis[t];
+            Cost d = -dual[s];
+            flow += c;
+            cost += c * d;
+            if (prevCost == d) { result.pop_back(); }
+            result.push_back({flow, cost});
+            prevCost = cost;
         }
-        return make_pair(flow, cost);
+        return result;
     }
+private:
+    int n;
+    struct _edge {
+        int v, rev;
+        Flow cap;
+        Cost cost;
+    };
+    vector<pair<int, int>> pos;
+    vector<vector<_edge>> g;
 };
