@@ -60,87 +60,21 @@ struct CircleCover {
     }
   }
 };
-
-double ConvexHullDist(vector<pdd> A, vector<pdd> B) {
-    for (auto &p : B) p = {-p.X, -p.Y};
-    auto C = Minkowski(A, B); // assert SZ(C) > 0
-    if (PointInConvex(C, pdd(0, 0))) return 0;
-    double ans = PointSegDist(C.back(), C[0], pdd(0, 0));
-    for (int i = 0; i + 1 < SZ(C); ++i) {
-        ans = min(ans, PointSegDist(C[i], C[i + 1], pdd(0, 0)));
-    }
-    return ans;
-}
-
-void rotatingSweepLine(vector<pii> &ps) {
-  int n = SZ(ps), m = 0;
-  vector<int> id(n), pos(n);
-  vector<pii> line(n * (n - 1));
-  for (int i = 0; i < n; ++i)
-    for (int j = 0; j < n; ++j)
-      if (i != j) line[m++] = pii(i, j);
-  sort(ALL(line), [&](pii a, pii b) {
-    return cmp(ps[a.Y] - ps[a.X], ps[b.Y] - ps[b.X]);
-  }); // cmp(): polar angle compare
-  iota(ALL(id), 0);
-  sort(ALL(id), [&](int a, int b) {
-    if (ps[a].Y != ps[b].Y) return ps[a].Y < ps[b].Y;
-    return ps[a] < ps[b];
-  }); // initial order, since (1, 0) is the smallest
-  for (int i = 0; i < n; ++i) pos[id[i]] = i;
-  for (int i = 0; i < m; ++i) {
-    auto l = line[i];
-    // do something
-    tie(pos[l.X], pos[l.Y], id[pos[l.X]], id[pos[l.Y]]) = make_tuple(pos[l.Y], pos[l.X], l.Y, l.X);
+// p, q is convex
+double TwoConvexHullMinDist(Point P[], Point Q[], int n, int m) {
+  int YMinP = 0, YMaxQ = 0;
+  double tmp, ans = 999999999;
+  for (i = 0; i < n; ++i) if(P[i].y < P[YMinP].y) YMinP = i;
+  for (i = 0; i < m; ++i) if(Q[i].y > Q[YMaxQ].y) YMaxQ = i;
+  P[n] = P[0], Q[m] = Q[0];
+  for (int i = 0; i < n; ++i) {
+    while (tmp = Cross(Q[YMaxQ + 1] - P[YMinP + 1], P[YMinP] - P[YMinP + 1]) > Cross(Q[YMaxQ] - P[YMinP + 1], P[YMinP] - P[YMinP + 1])) YMaxQ = (YMaxQ + 1) % m;
+    if (tmp < 0) ans = min(ans, PointToSegDist(P[YMinP], P[YMinP + 1], Q[YMaxQ]));
+    else ans = min(ans, TwoSegMinDist(P[YMinP], P[YMinP + 1], Q[YMaxQ], Q[YMaxQ + 1]));
+    YMinP = (YMinP + 1) % n;
   }
+  return ans;
 }
-
-bool PointInConvex(const vector<pll> &C, pll p, bool strict = true) {
-  int a = 1, b = SZ(C) - 1, r = !strict;
-  if (SZ(C) == 0) return false;
-  if (SZ(C) < 3) return r && btw(C[0], C.back(), p);
-  if (ori(C[0], C[a], C[b]) > 0) swap(a, b);
-  if (ori(C[0], C[a], p) >= r || ori(C[0], C[b], p) <= -r)
-    return false;
-  while (abs(a - b) > 1) {
-    int c = (a + b) / 2;
-    (ori(C[0], C[c], p) > 0 ? b : a) = c;
-  }
-  return ori(C[a], C[b], p) < r;
-}
-
-llf rat(P a, P b) { return sgn(RE(b)) ? llf(RE(a))/RE(b) : llf(IM(a))/IM(b); }
-llf polyUnion(vector<vector<P>>& poly) {
-  llf ret = 0; // area of poly[i] must be non-negative
-  rep(i,0,sz(poly)) rep(v,0,sz(poly[i])) {
-    P A = poly[i][v], B = poly[i][(v + 1) % sz(poly[i])];
-    vector<pair<llf, int>> segs{{0, 0}, {1, 0}};
-    rep(j,0,sz(poly)) if (i != j) {
-      rep(u,0,sz(poly[j])) {
-        P C = poly[j][u], D = poly[j][(u + 1) % sz(poly[j])];
-        if (int sc = ori(A, B, C), sd = ori(A, B, D); sc != sd) {
-          llf sa = cross(D-C, A-C), sb = cross(D-C, B-C);
-          if (min(sc, sd) < 0)
-            segs.emplace_back(sa / (sa - sb), sgn(sc - sd));
-        } else if (!sc && !sd && j<i && sgn(dot(B-A,D-C))>0){
-          segs.emplace_back(rat(C - A, B - A), 1);
-          segs.emplace_back(rat(D - A, B - A), -1);
-        }
-      }
-    }
-    sort(segs.begin(), segs.end());
-    for (auto &s : segs) s.first = clamp<llf>(s.first, 0, 1);
-    llf sum = 0;
-    int cnt = segs[0].second;
-    rep(j,1,sz(segs)) {
-      if (!cnt) sum += segs[j].first - segs[j - 1].first;
-      cnt += segs[j].second;
-    }
-    ret += cross(A,B) * sum;
-  }
-  return ret / 2;
-}
-
 template <typename F, typename C> class MCMF {
   static constexpr F INF_F = numeric_limits<F>::max();
   static constexpr C INF_C = numeric_limits<C>::max();
@@ -373,7 +307,6 @@ vector <Pt> SegsInter(Line a, Line b) {
     }
     return {};
 }
- 
 double polyUnion(vector <vector <Pt>> poly) {
     int n = poly.size();
     double ans = 0;
@@ -411,9 +344,7 @@ double polyUnion(vector <vector <Pt>> poly) {
     }
     return ans / 2;
 }
-
-// Minimum Steiner Tree
-// O(V 3^T + V^2 2^T)
+// Minimum Steiner Tree, O(V 3^T + V^2 2^T)
 struct SteinerTree { // 0-base
   static const int T = 10, N = 105, INF = 1e9;
   int n, dst[N][N], dp[1 << T][N], tdst[N];
@@ -468,3 +399,187 @@ struct SteinerTree { // 0-base
     return ans;
   }
 };
+using ld = long double;
+using cp = const point&;
+using cl = const line&;
+using cc = const sector&;
+const int N = 1005;
+const ld eps = 1e-6;
+const ld pi = acosl(-1);
+struct sector {
+    ld r;
+    point o, s, t;
+    void read() {
+        o.read(), s.read(), t.read(); // o->s->t : counter-clockwise
+        r = (o - s).len();
+    }
+    bool valid(cp p) { // check if p is in the both two half-plane
+        return sgn(det(s - o, p - o)) >= 0 && sgn(det(p - o, t - o)) >= 0;
+    }
+    bool strict_inside(cp p) {
+        ld d = (o - p).len();
+        return sgn(d - r) < 0 && sgn(det(s - o, p - o)) > 0 && sgn(det(p - o, t - o)) > 0;
+    }
+};
+bool point_on_seg(cp a, cl b) { // nonstrict }
+bool intersect_judge(cl a, cl b) { // nonstrict }
+point line_intersect(cl a, cl b) {}
+point proj_to_line(cp a, cl b) {}
+ld point_to_line(cp a, cl b) {}
+vector<point> line_circle_intersect(cl a, cc b) {
+    ld d = point_to_line(b.o, a);
+    if (sgn(d - b.r) > 0) return {};
+    else {
+        ld x = sqrtl(max(sqr(b.r) - sqr(d), (ld)0));
+        point p = proj_to_line(b.o, a);
+        point delta = (a.t - a.s).unit() * x;
+        return {p + delta, p - delta};
+    }
+}
+vector<point> seg_circle_intersect(cl a, cc b){
+    auto v = line_circle_intersect(a, b);
+    vector<point> ret;
+    for (auto & p : v)
+        if (sgn(dot(p - a.s, p - a.t)) <= 0) ret.push_back(p);
+    return ret;
+}
+vector<point> cir_intersect(cc a, cc b) {
+    ld d = (a.o - b.o).len();
+    if (sgn(d) == 0 || sgn(d - a.r - b.r) >= 0 || sgn(d - fabs(a.r - b.r)) <= 0) {
+        // 相切的切点是没有意义的
+        return {};
+    }
+    point r = (b.o - a.o).unit();
+    point rotr = {-r.y, r.x};
+    ld x = ((sqr(a.r) - sqr(b.r)) / d + d) / 2;
+    ld h = sqrtl(sqr(a.r) - sqr(x));
+    return {a.o + r * x - rotr * h, a.o + r * x + rotr * h};
+}
+using info = pair<point, int>;
+int n;
+sector c[N];
+ld calc_seg(int i, cl li) {
+    vector<info> seg_inter;
+    point vec_st = li.t - li.s;
+    for (int j = 1; j <= n; j++) {
+        if (i == j) continue;
+        line lj1 = {c[j].o, c[j].s};
+        line lj2 = {c[j].t, c[j].o};
+        vector<point> inter;
+        if (intersect_judge(li, lj1))
+            inter.push_back(line_intersect(li, lj1));
+        if (intersect_judge(li, lj2))
+            inter.push_back(line_intersect(li, lj2));
+        auto tmp = seg_circle_intersect(li, c[j]);
+        for (const auto& p : tmp)
+            if (c[j].valid(p)) inter.push_back(p);
+        if (c[j].strict_inside(li.s)) inter.push_back(li.s);
+        if (c[j].strict_inside(li.t)) inter.push_back(li.t);
+        sort(inter.begin(), inter.end(), [&](cp a, cp b) {
+            auto dot1 = dot(a - li.s, vec_st);
+            auto dot2 = dot(b - li.s, vec_st);
+            return dot1 < dot2;
+        });
+        for (int k = 1; k < inter.size(); k++) {
+            point mid = (inter[k] + inter[k - 1]) / 2;
+            if (c[j].strict_inside(mid)) {
+                seg_inter.push_back({inter[k - 1], -1});
+                seg_inter.push_back({inter[k], 1});
+            }
+        }
+    }
+    seg_inter.push_back({li.s, 0});
+    seg_inter.push_back({li.t, 0});
+    auto sz = seg_inter.size();
+    vector<int> ids(sz);
+    iota(ids.begin(), ids.end(), 0);
+    sort(ids.begin(), ids.end(), [&](int x, int y) {
+        auto dot1 = dot(seg_inter[x].first - li.s, vec_st);
+        auto dot2 = dot(seg_inter[y].first - li.s, vec_st);
+        return dot1 < dot2;
+    });
+    ld ret = 0;
+    for (int j = 1, sum = seg_inter[ids.front()].second; j < ids.size(); sum += seg_inter[ids[j]].second, j++) {
+        auto pre = seg_inter[ids[j - 1]].first;
+        auto cur = seg_inter[ids[j]].first;
+        if (sum < 0) continue;
+        ret += det(pre, cur) / 2;
+    }
+    return ret;
+}
+ld calc_arc(int i, cl li) {
+    vector<info> arc_inter;
+    point vec_st = li.t - li.s;
+    for (int j = 1; j <= n; j++) {
+        if (i == j) continue;
+        line lj1 = {c[j].o, c[j].s};
+        line lj2 = {c[j].t, c[j].o}; 
+        vector<point> inter;
+        auto tmp = seg_circle_intersect(lj1, c[i]);
+        for (const auto& p : tmp)
+            if (c[i].valid(p)) inter.push_back(p);
+        tmp = seg_circle_intersect(lj2, c[i]);
+        for (const auto& p : tmp)
+            if (c[i].valid(p)) inter.push_back(p);
+        tmp = cir_intersect(c[i], c[j]);
+        for (const auto& p : tmp)
+            if (c[i].valid(p) && c[j].valid(p)) inter.push_back(p);
+        if (c[j].strict_inside(li.s)) inter.push_back(li.s);
+        if (c[j].strict_inside(li.t)) inter.push_back(li.t);
+
+        sort(inter.begin(), inter.end(), [&](cp a, cp b) {
+            auto dot1 = dot(a - li.s, vec_st);
+            auto dot2 = dot(b - li.s, vec_st);
+            return dot1 < dot2;
+        });
+        for (int k = 1; k < inter.size(); k++) {
+            const point& pre = inter[k - 1];
+            const point& cur = inter[k];
+            ld theta1 = atan2(pre.y - c[i].o.y, pre.x - c[i].o.x);
+            ld theta2 = atan2(cur.y - c[i].o.y, cur.x - c[i].o.x);
+            if (sgn(theta2 - theta1) < 0) theta2 = theta2 + pi * 2;
+            ld theta = (theta2 + theta1) / 2;
+            point mid = c[i].o + point{c[i].r * cosl(theta), c[i].r * sinl(theta)};
+            if (c[j].strict_inside(mid)) {
+                arc_inter.push_back({pre, -1});
+                arc_inter.push_back({cur, 1});
+            }
+        }
+    }
+    arc_inter.push_back({li.s, 0});
+    arc_inter.push_back({li.t, 0});
+    auto sz = arc_inter.size();
+    vector<int> ids(sz);
+    iota(ids.begin(), ids.end(), 0);
+    sort(ids.begin(), ids.end(), [&](int x, int y) {
+        auto dot1 = dot(arc_inter[x].first - li.s, vec_st);
+        auto dot2 = dot(arc_inter[y].first - li.s, vec_st);
+        return dot1 < dot2;
+    });
+    ld ret = 0;
+    for (int j = 1, sum = arc_inter[ids.front()].second; j < ids.size(); sum += arc_inter[ids[j]].second, j++) {
+        auto pre = arc_inter[ids[j - 1]].first;
+        auto cur = arc_inter[ids[j]].first;
+        if (sum < 0) continue;
+        ld theta1 = atan2(pre.y - c[i].o.y, pre.x - c[i].o.x);
+        ld theta2 = atan2(cur.y - c[i].o.y, cur.x - c[i].o.x);
+        if (sgn(theta2 - theta1) < 0) theta2 = theta2 + pi * 2;
+        auto func = [&](ld theta) {
+            return c[i].r * (c[i].o.x * sinl(theta) - c[i].o.y * cosl(theta) + c[i].r * theta);
+        };
+        ret += (func(theta2) - func(theta1)) / 2;
+    }
+    return ret;
+}
+int main() {
+    cin >> n;
+    for (int i = 1; i <= n; i++) c[i].read();
+    ld ans = 0;
+    for (int i = 1; i <= n; i++) {
+        ans += calc_seg(i, {c[i].o, c[i].s});
+        ans += calc_seg(i, {c[i].t, c[i].o});
+        ans += calc_arc(i, {c[i].s, c[i].t});
+    }
+    cout << fixed << setprecision(10) << ans << endl;
+    return 0;
+}

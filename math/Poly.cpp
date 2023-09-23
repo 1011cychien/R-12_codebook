@@ -1,21 +1,7 @@
 template <int P>
 struct Modint {
     int v;
-    constexpr Modint() : v(0) {}
-    constexpr Modint(i64 v) : v((v % P + P) % P) {}
-    constexpr friend Modint operator+(Modint a, Modint b) { return Modint((a.v + b.v) % P); }
-    constexpr friend Modint operator-(Modint a, Modint b) { return Modint((a.v + P - b.v) % P); }
-    constexpr friend Modint operator*(Modint a, Modint b) { return Modint(1LL * a.v * b.v % P); }
-    constexpr Modint qpow(i64 p) {
-        Modint res = 1, x = v;
-        while (p > 0) {
-            if (p & 1) { res = res * x; }
-            x = x * x;
-            p >>= 1;
-        }
-        return res;
-    }
-    constexpr Modint inv() { return qpow(P - 2); }
+    // need constexpr, constructor, +-*, qpow, inv()
 };
 template<int P>
 constexpr Modint<P> findPrimitiveRoot() {
