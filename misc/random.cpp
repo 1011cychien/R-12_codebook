@@ -141,9 +141,6 @@ llf polyUnion(vector<vector<P>>& poly) {
   return ret / 2;
 }
 
-#include <bits/stdc++.h>
-using namespace std;
-
 template <typename F, typename C> class MCMF {
   static constexpr F INF_F = numeric_limits<F>::max();
   static constexpr C INF_C = numeric_limits<C>::max();
@@ -178,7 +175,6 @@ template <typename F, typename C> class MCMF {
       }
     }
   }
-
 public:
   MCMF(int n) : g(n), pre(n), inq(n) {}
   void add_edge(int s, int t, F c, C w) {
@@ -222,23 +218,8 @@ public:
     return {f.back(), w};
   }
 };
-
-int main() {
-  cin.tie(nullptr)->sync_with_stdio(false);
-  int n, m, s, t;
-  cin >> n >> m >> s >> t;
-  s -= 1, t -= 1;
-  MCMF<int64_t, int64_t> mcmf(n);
-  for (int i = 0; i < m; ++i) {
-    int u, v, f, c;
-    cin >> u >> v >> f >> c;
-    u -= 1, v -= 1;
-    mcmf.add_edge(u, v, f, c);
-  }
   auto [f, c] = mcmf.solve(s, t, 1e12);
   cout << f << ' ' << c << '\n';
-  return 0;
-}
 
 struct WeightGraph {
   static const int inf = INT_MAX;
@@ -439,3 +420,62 @@ struct WeightGraph {
         g[u][v] = edge(u, v, 0);
   }
 };
+
+void MoAlgoOnTree() {
+  Dfs(0, -1);
+  vector<int> euler(tk);
+  for (int i = 0; i < n; ++i) {
+    euler[tin[i]] = i;
+    euler[tout[i]] = i;
+  }
+  vector<int> l(q), r(q), qr(q), sp(q, -1);
+  for (int i = 0; i < q; ++i) {
+    if (tin[u[i]] > tin[v[i]]) swap(u[i], v[i]);
+    int z = GetLCA(u[i], v[i]);
+    sp[i] = z[i];
+    if (z == u) l[i] = tin[u[i]], r[i] = tin[v[i]];
+    else l[i] = tout[u[i]], r[i] = tin[v[i]];
+    qr[i] = i;
+  }
+  sort(qr.begin(), qr.end(), [&](int i, int j) {
+      if (l[i] / kB == l[j] / kB) return r[i] < r[j];
+      return l[i] / kB < l[j] / kB;
+      });
+  vector<bool> used(n);
+  // Add(v): add/remove v to/from the path based on used[v]
+  for (int i = 0, tl = 0, tr = -1; i < q; ++i) {
+    while (tl < l[qr[i]]) Add(euler[tl++]);
+    while (tl > l[qr[i]]) Add(euler[--tl]);
+    while (tr > r[qr[i]]) Add(euler[tr--]);
+    while (tr < r[qr[i]]) Add(euler[++tr]);
+    // add/remove LCA(u, v) if necessary
+  }
+}
+
+for (int l = 0, r = -1; auto [ql, qr, i] : qs) {
+    if (ql / B == qr / B) {
+        for (int j = ql; j <= qr; j++) {
+            cntSmall[a[j]]++;
+            ans[i] = max(ans[i], 1LL * b[a[j]] * cntSmall[a[j]]);
+        }
+        for (int j = ql; j <= qr; j++) {
+            cntSmall[a[j]]--;
+        }
+        continue;
+    }
+    if (int block = ql / B; block != lst) {
+        int x = min((block + 1) * B, n);
+        while (r + 1 < x) { add(++r); }
+        while (r >= x) { del(r--); }
+        while (l < x) { del(l++); }
+        mx = 0;
+        lst = block;
+    }
+    while (r < qr) { add(++r); }
+    i64 tmpMx = mx;
+    int tmpL = l;
+    while (l > ql) { add(--l); }
+    ans[i] = mx;
+    mx = tmpMx;
+    while (l < tmpL) { del(l++); }
+}

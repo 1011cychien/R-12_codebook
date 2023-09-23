@@ -1,5 +1,4 @@
-pair<int, vector<int>> maxClique(const vector<bitset<N>> adj) {
-    int n = adj.size();
+pair<int, vector<int>> maxClique(int n, const vector<bitset<N>> adj) {
     int mx = 0;
     vector<int> ans, cur;
     auto rec = [&](auto rec, bitset<N> s) -> void {

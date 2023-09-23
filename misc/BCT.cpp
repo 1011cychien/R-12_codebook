@@ -1,4 +1,5 @@
 // a component contains no articulation point, so P2 is a component
+// but not a vertex biconnected component by definition
 // resulting bct is rooted
 struct BlockCutTree {
     int n, square = 0, cur = 0;

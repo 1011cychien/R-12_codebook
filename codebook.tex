@@ -124,6 +124,7 @@ stringstyle=\itshape\color{Green4}
 
 \section{Graph}
 \code{2-Edge-Connected Components}{graph/EBCC.cpp}
+\code{2-Vertex-Connected Components}{graph/VBCC.cpp}
 \code{3-Edge-Connected Components}{graph/ETCC.cpp}
 \code{Heavy-Light Decomposition}{graph/HLD.cpp}
 \code{Centroid Decomposition}{graph/CD.cpp}
@@ -134,7 +135,7 @@ stringstyle=\itshape\color{Green4}
 \code{Directed Minimum Spanning Tree}{graph/DMST.cpp}
 \code{Maximum Clique}{graph/maxClique.cpp}
 \code{Dominator Tree}{graph/DominatorTree.cpp}
-\code{Vizing's Theorem}{graph/vizing.cpp}
+\code{Edge Coloring}{graph/vizing.cpp}
 
 \section{String}
 \code{Prefix Function}{string/prefixFunction.cpp}
@@ -149,7 +150,7 @@ stringstyle=\itshape\color{Green4}
 \code{Extended GCD}{math/extgcd.cpp}
 \code{Chinese Remainder Theorem}{math/CRT.cpp}
 \code{NTT and polynomials}{math/Poly.cpp}
-\tex{NTT Prime List}{math/NTTprime.tex}
+\code{Any Mod NTT}{math/3ModNTT.cpp}
 \tex{Newton's Method}{math/Newton.tex}
 \tex{Fast Walsh-Hadamard Transform}{math/FWT.tex}
 \codewithtext{Simplex Algorithm}{math/Simplex.cpp}{maximize $\mathbf{c}^T\mathbf{x}$ subject to $A\mathbf{x} \leq \mathbf{b}$ and $\mathbf{x} \geq 0$. Returns $-\infty$ if infeasible and $\infty$ if unbounded.}
@@ -158,18 +159,19 @@ stringstyle=\itshape\color{Green4}
 \input{math/SimplexConstruction.tex}
 \vspace{-2em}
 \code{Schreier–Sims Algorithm}{math/SchreierSims.cpp}
-\code{Berlekamp-Massey Algorithm}{math/BerlekampMassey.cpp}
-\code{Fast Linear Recurrence}{math/LinearRec.cpp}
+\code{Berlekamp Massey Algorithm}{math/berlekampMassey.cpp}
+\code{Fast Linear Recurrence}{math/linearRecurrence.cpp}
 \code{Prime check and factorize}{math/pollardRho.cpp}
-\code{Meissel–Lehmer Algorithm}{math/PiCount.cpp}
+\code{Count Primes leq n}{math/primeCount.cpp}
 \code{Discrete Logarithm}{math/discreteLog.cpp}
 \code{Quadratic Residue}{math/quadraticResidue.cpp}
 \code{Characteristic Polynomial}{math/CharacteristicPoly.cpp}
 \code{Linear Sieve Related}{math/sieve.cpp}
-\code{Partition Function}{math/Partition.cpp}
 \code{De Bruijn Sequence}{math/DeBruijn.cpp}
 \code{Floor Sum}{math/floorSum.cpp}
-\tex{More Floor Sum}{math/Euclidean.tex}
+\tex{More Floor Sum}{math/high_order_floor_sum.tex}
+\code{Min Mod Linear}{math/minModLinear.cpp}
+\code{Count of subsets with sum (mod P) leq T}{math/modpSubsetSum.cpp}
 \tex{Theorem}{math/Theorem.tex}
 
 \section{Dynamic Programming}
@@ -184,7 +186,6 @@ stringstyle=\itshape\color{Green4}
 \code{Triangle Centers}{geometry/centers.cpp}
 \code{Circle}{geometry/circle.cpp}
 \code{Closest Pair}{geometry/ClosestPair.cpp}
-\code{Area of Union of Circles}{geometry/circleOrArea.cpp}
 \code{3D Convex Hull}{geometry/convex3D.cpp}
 \code{Delaunay Triangulation}{geometry/delaunay.cpp}
 
@@ -194,7 +195,6 @@ stringstyle=\itshape\color{Green4}
 \code{Offline Dynamic MST}{misc/DynamicMST.cpp}
 \code{Manhattan Distance MST}{misc/ManhattanMST.cpp}
 \tex{Matroid Intersection}{misc/Matroid.tex}
-\code{Divide into O(log) Segments}{misc/bitSegDivide.cpp}
 \code{unorganized}{misc/random.cpp}
 
 \end{document}
