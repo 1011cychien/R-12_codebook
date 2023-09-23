@@ -221,206 +221,6 @@ public:
   auto [f, c] = mcmf.solve(s, t, 1e12);
   cout << f << ' ' << c << '\n';
 
-struct WeightGraph {
-  static const int inf = INT_MAX;
-  static const int maxn = 514;
-  struct edge {
-    int u, v, w;
-    edge(){}
-    edge(int u, int v, int w): u(u), v(v), w(w) {}
-  };
-  int n, n_x;
-  edge g[maxn * 2][maxn * 2];
-  int lab[maxn * 2];
-  int match[maxn * 2], slack[maxn * 2], st[maxn * 2], pa[maxn * 2];
-  int flo_from[maxn * 2][maxn + 1], S[maxn * 2], vis[maxn * 2];
-  vector<int> flo[maxn * 2];
-  queue<int> q;
-  int e_delta(const edge &e) { return lab[e.u] + lab[e.v] - g[e.u][e.v].w * 2; }
-  void update_slack(int u, int x) { if (!slack[x] || e_delta(g[u][x]) < e_delta(g[slack[x]][x])) slack[x] = u; }
-  void set_slack(int x) {
-    slack[x] = 0;
-    for (int u = 1; u <= n; ++u)
-      if (g[u][x].w > 0 && st[u] != x && S[st[u]] == 0)
-        update_slack(u, x);
-  }
-  void q_push(int x) {
-    if (x <= n) q.push(x);
-    else for (size_t i = 0; i < flo[x].size(); i++) q_push(flo[x][i]);
-  }
-  void set_st(int x, int b) {
-    st[x] = b;
-    if (x > n) for (size_t i = 0; i < flo[x].size(); ++i) set_st(flo[x][i], b);
-  }
-  int get_pr(int b, int xr) {
-    int pr = find(flo[b].begin(), flo[b].end(), xr) - flo[b].begin();
-    if (pr % 2 == 1) {
-      reverse(flo[b].begin() + 1, flo[b].end());
-      return (int)flo[b].size() - pr;
-    }
-    return pr;
-  }
-  void set_match(int u, int v) {
-    match[u] = g[u][v].v;
-    if (u <= n) return;
-    edge e = g[u][v];
-    int xr = flo_from[u][e.u], pr = get_pr(u, xr);
-    for (int i = 0; i < pr; ++i) set_match(flo[u][i], flo[u][i ^ 1]);
-    set_match(xr, v);
-    rotate(flo[u].begin(), flo[u].begin() + pr, flo[u].end());
-  }
-  void augment(int u, int v) {
-    for (; ; ) {
-      int xnv = st[match[u]];
-      set_match(u, v);
-      if (!xnv) return;
-      set_match(xnv, st[pa[xnv]]);
-      u = st[pa[xnv]], v = xnv;
-    }
-  }
-  int get_lca(int u, int v) {
-    static int t = 0;
-    for (++t; u || v; swap(u, v)) {
-      if (u == 0) continue;
-      if (vis[u] == t) return u;
-      vis[u] = t;
-      u = st[match[u]];
-      if (u) u = st[pa[u]];
-    }
-    return 0;
-  }
-  void add_blossom(int u, int lca, int v) {
-    int b = n + 1;
-    while (b <= n_x && st[b]) ++b;
-    if (b > n_x) ++n_x;
-    lab[b] = 0, S[b] = 0;
-    match[b] = match[lca];
-    flo[b].clear();
-    flo[b].push_back(lca);
-    for (int x = u, y; x != lca; x = st[pa[y]])
-      flo[b].push_back(x), flo[b].push_back(y = st[match[x]]), q_push(y);
-    reverse(flo[b].begin() + 1, flo[b].end());
-    for (int x = v, y; x != lca; x = st[pa[y]])
-      flo[b].push_back(x), flo[b].push_back(y = st[match[x]]), q_push(y);
-    set_st(b, b);
-    for (int x = 1; x <= n_x; ++x) g[b][x].w = g[x][b].w = 0;
-    for (int x = 1; x <= n; ++x) flo_from[b][x] = 0;
-    for (size_t i = 0; i < flo[b].size(); ++i) {
-      int xs = flo[b][i];
-      for (int x = 1; x <= n_x; ++x)
-        if (g[b][x].w == 0 || e_delta(g[xs][x]) < e_delta(g[b][x]))
-          g[b][x] = g[xs][x], g[x][b] = g[x][xs];
-      for (int x = 1; x <= n; ++x)
-        if (flo_from[xs][x]) flo_from[b][x] = xs;
-    }
-    set_slack(b);
-  }
-  void expand_blossom(int b) {
-    for (size_t i = 0; i < flo[b].size(); ++i)
-      set_st(flo[b][i], flo[b][i]);
-    int xr = flo_from[b][g[b][pa[b]].u], pr = get_pr(b, xr);
-    for (int i = 0; i < pr; i += 2) {
-      int xs = flo[b][i], xns = flo[b][i + 1];
-      pa[xs] = g[xns][xs].u;
-      S[xs] = 1, S[xns] = 0;
-      slack[xs] = 0, set_slack(xns);
-      q_push(xns);
-    }
-    S[xr] = 1, pa[xr] = pa[b];
-    for (size_t i = pr + 1; i < flo[b].size(); ++i) {
-      int xs = flo[b][i];
-      S[xs] = -1, set_slack(xs);
-    }
-    st[b] = 0;
-  }
-  bool on_found_edge(const edge &e) {
-    int u = st[e.u], v = st[e.v];
-    if (S[v] == -1) {
-      pa[v] = e.u, S[v] = 1;
-      int nu = st[match[v]];
-      slack[v] = slack[nu] = 0;
-      S[nu] = 0, q_push(nu);
-    } else if (S[v] == 0) {
-      int lca = get_lca(u, v);
-      if (!lca) return augment(u,v), augment(v,u), true;
-      else add_blossom(u, lca, v);
-    }
-    return false;
-  }
-  bool matching() {
-    memset(S + 1, -1, sizeof(int) * n_x);
-    memset(slack + 1, 0, sizeof(int) * n_x);
-    q = queue<int>();
-    for (int x = 1; x <= n_x; ++x)
-      if (st[x] == x && !match[x]) pa[x] = 0, S[x] = 0, q_push(x);
-    if (q.empty()) return false;
-    for (; ; ) {
-      while (q.size()) {
-        int u = q.front(); q.pop();
-        if (S[st[u]] == 1) continue;
-        for (int v = 1; v <= n; ++v)
-          if (g[u][v].w > 0 && st[u] != st[v]) {
-            if (e_delta(g[u][v]) == 0) {
-              if (on_found_edge(g[u][v])) return true;
-            } else update_slack(u, st[v]);
-          }
-      }
-      int d = inf;
-      for (int b = n + 1; b <= n_x; ++b)
-        if (st[b] == b && S[b] == 1) d = min(d, lab[b] / 2);
-      for (int x = 1; x <= n_x; ++x)
-        if (st[x] == x && slack[x]) {
-          if (S[x] == -1) d = min(d, e_delta(g[slack[x]][x]));
-          else if (S[x] == 0) d = min(d, e_delta(g[slack[x]][x]) / 2);
-        }
-      for (int u = 1; u <= n; ++u) {
-        if (S[st[u]] == 0) {
-          if (lab[u] <= d) return 0;
-          lab[u] -= d;
-        } else if (S[st[u]] == 1) lab[u] += d;
-      }
-      for (int b = n + 1; b <= n_x; ++b)
-        if (st[b] == b) {
-          if (S[st[b]] == 0) lab[b] += d * 2;
-          else if (S[st[b]] == 1) lab[b] -= d * 2;
-        }
-      q = queue<int>();
-      for (int x = 1; x <= n_x; ++x)
-        if (st[x] == x && slack[x] && st[slack[x]] != x && e_delta(g[slack[x]][x]) == 0)
-          if (on_found_edge(g[slack[x]][x])) return true;
-      for (int b = n + 1; b <= n_x; ++b)
-        if (st[b] == b && S[b] == 1 && lab[b] == 0) expand_blossom(b);
-    }
-    return false;
-  }
-  pair<long long, int> solve() {
-    memset(match + 1, 0, sizeof(int) * n);
-    n_x = n;
-    int n_matches = 0;
-    long long tot_weight = 0;
-    for (int u = 0; u <= n; ++u) st[u] = u, flo[u].clear();
-    int w_max = 0;
-    for (int u = 1; u <= n; ++u)
-      for (int v = 1; v <= n; ++v) {
-        flo_from[u][v] = (u == v ? u : 0);
-        w_max = max(w_max, g[u][v].w);
-      }
-    for (int u = 1; u <= n; ++u) lab[u] = w_max;
-    while (matching()) ++n_matches;
-    for (int u = 1; u <= n; ++u)
-      if (match[u] && match[u] < u)
-        tot_weight += g[u][match[u]].w;
-    return make_pair(tot_weight, n_matches);
-  }
-  void add_edge(int ui, int vi, int wi) { g[ui][vi].w = g[vi][ui].w = wi; }
-  void init(int _n) {
-    n = _n;
-    for (int u = 1; u <= n; ++u)
-      for (int v = 1; v <= n; ++v)
-        g[u][v] = edge(u, v, 0);
-  }
-};
-
 void MoAlgoOnTree() {
   Dfs(0, -1);
   vector<int> euler(tk);
@@ -479,3 +279,192 @@ for (int l = 0, r = -1; auto [ql, qr, i] : qs) {
     mx = tmpMx;
     while (l < tmpL) { del(l++); }
 }
+
+typedef pair<ll,int> T;
+typedef struct heap* ph;
+struct heap { // min heap
+	ph l = NULL, r = NULL;
+	int s = 0; T v; // s: path to leaf
+	heap(T _v):v(_v) {}
+};
+ph meld(ph p, ph q) {
+	if (!p || !q) return p?:q;
+	if (p->v > q->v) swap(p,q);
+	ph P = new heap(*p); P->r = meld(P->r,q);
+	if (!P->l || P->l->s < P->r->s) swap(P->l,P->r);
+	P->s = (P->r?P->r->s:0)+1; return P;
+}
+ph ins(ph p, T v) { return meld(p, new heap(v)); }
+ph pop(ph p) { return meld(p->l,p->r); }
+int N,M,src,des,K;
+ph cand[MX];
+vector<array<int,3>> adj[MX], radj[MX];
+pi pre[MX];
+ll dist[MX];
+struct state {
+	int vert; ph p; ll cost;
+	bool operator<(const state& s) const { return cost > s.cost; }
+};
+int main() {
+	setIO(); re(N,M,src,des,K);
+	F0R(i,M) {
+		int u,v,w; re(u,v,w);
+		adj[u].pb({v,w,i}); radj[v].pb({u,w,i}); // vert, weight, label
+	}
+	priority_queue<state> ans;
+	{
+		F0R(i,N) dist[i] = INF, pre[i] = {-1,-1};
+		priority_queue<T,vector<T>,greater<T>> pq;
+		auto ad = [&](int a, ll b, pi ind) {
+			if (dist[a] <= b) return;
+			pre[a] = ind; pq.push({dist[a] = b,a});
+		};
+		ad(des,0,{-1,-1});
+		vi seq;
+		while (sz(pq)) {
+			auto a = pq.top(); pq.pop(); 
+			if (a.f > dist[a.s]) continue;
+			seq.pb(a.s); trav(t,radj[a.s]) ad(t[0],a.f+t[1],{t[2],a.s}); // edge index, vert
+		}
+		trav(t,seq) {
+			trav(u,adj[t]) if (u[2] != pre[t].f && dist[u[0]] != INF) {
+				ll cost = dist[u[0]]+u[1]-dist[t];
+				cand[t] = ins(cand[t],{cost,u[0]});
+			}
+			if (pre[t].f != -1) cand[t] = meld(cand[t],cand[pre[t].s]);
+			if (t == src) {
+				ps(dist[t]); K --;
+				if (cand[t]) ans.push(state{t,cand[t],dist[t]+cand[t]->v.f});
+			}
+		}
+	}
+	F0R(i,K) {
+		if (!sz(ans)) {
+			ps(-1);
+			continue;
+		}
+		auto a = ans.top(); ans.pop();
+		int vert = a.vert;
+		ps(a.cost);
+		if (a.p->l) {
+			ans.push(state{vert,a.p->l,a.cost+a.p->l->v.f-a.p->v.f});
+		}
+		if (a.p->r) {
+			ans.push(state{vert,a.p->r,a.cost+a.p->r->v.f-a.p->v.f});
+		}
+		int V = a.p->v.s;
+		if (cand[V]) ans.push(state{V,cand[V],a.cost+cand[V]->v.f});
+	}
+}
+
+Pt LinesInter(Line a, Line b) {
+    double abc = (a.b - a.a) ^ (b.a - a.a);
+    double abd = (a.b - a.a) ^ (b.b - a.a);
+    if (sign(abc - abd) == 0) return b.b;// no inter
+    return (b.b * abc - b.a * abd) / (abc - abd);
+}
+vector <Pt> SegsInter(Line a, Line b) {
+    if (btw(a.a, a.b, b.a)) return {b.a};
+    if (btw(a.a, a.b, b.b)) return {b.b};
+    if (btw(b.a, b.b, a.a)) return {a.a};
+    if (btw(b.a, b.b, a.b)) return {a.b};
+    if (ori(a.a, a.b, b.a) * ori(a.a, a.b, b.b) == -1 && ori(b.a, b.b, a.a) * ori(b.a, b.b, a.b) == -1) {
+        return {LinesInter(a, b)};
+    }
+    return {};
+}
+ 
+double polyUnion(vector <vector <Pt>> poly) {
+    int n = poly.size();
+    double ans = 0;
+    auto solve = [&](Pt a, Pt b, int cid) {
+        vector <pair <Pt, int>> event;
+        for (int i = 0; i < n; ++i) {
+            int st = 0, sz = poly[i].size();
+            while (st < sz && ori(poly[i][st], a, b) != 1) st++;
+            if (st == sz) continue;
+            for (int j = 0; j < sz; ++j) {
+                Pt c = poly[i][(j + st) % sz], d = poly[i][(j + st + 1) % sz];
+                if (sign((a - b) ^ (c - d)) != 0) {
+                    int ok1 = ori(c, a, b) == 1;
+                    int ok2 = ori(d, a, b) == 1;
+                    if (ok1 ^ ok2) event.emplace_back(LinesInter({a, b}, {c, d}), ok1 ? 1 : -1);
+                } else if (ori(c, a, b) == 0 && sign((a - b) * (c - d)) > 0 && i <= cid) {
+                    event.emplace_back(c, -1);
+                    event.emplace_back(d, 1);
+                }
+            }
+        }
+        sort(all(event), [&](pair <Pt, int> i, pair <Pt, int> j) {
+            return ((a - i.first) * (a - b)) < ((a - j.first) * (a - b));
+        });
+        int now = 0;
+        Pt lst = a;
+        for (auto [x, y] : event) {
+            if (btw(a, b, lst) && btw(a, b, x) && now == 0) ans += lst ^ x;
+            now += y, lst = x;
+        }
+    };
+    for (int i = 0; i < n; ++i) for (int j = 0; j < poly[i].size(); ++j) {
+        Pt a = poly[i][j], b = poly[i][(j + 1) % int(poly[i].size())];
+        solve(a, b, i);
+    }
+    return ans / 2;
+}
+
+// Minimum Steiner Tree
+// O(V 3^T + V^2 2^T)
+struct SteinerTree { // 0-base
+  static const int T = 10, N = 105, INF = 1e9;
+  int n, dst[N][N], dp[1 << T][N], tdst[N];
+  int vcost[N]; // the cost of vertexs
+  void init(int _n) {
+    n = _n;
+    for (int i = 0; i < n; ++i) {
+      for (int j = 0; j < n; ++j) dst[i][j] = INF;
+      dst[i][i] = vcost[i] = 0;
+    }
+  }
+  void add_edge(int ui, int vi, int wi) {
+    dst[ui][vi] = min(dst[ui][vi], wi);
+  }
+  void shortest_path() {
+    for (int k = 0; k < n; ++k)
+      for (int i = 0; i < n; ++i)
+        for (int j = 0; j < n; ++j)
+          dst[i][j] =
+            min(dst[i][j], dst[i][k] + dst[k][j]);
+  }
+  int solve(const vector<int> &ter) {
+    shortest_path();
+    int t = SZ(ter);
+    for (int i = 0; i < (1 << t); ++i)
+      for (int j = 0; j < n; ++j) dp[i][j] = INF;
+    for (int i = 0; i < n; ++i) dp[0][i] = vcost[i];
+    for (int msk = 1; msk < (1 << t); ++msk) {
+      if (!(msk & (msk - 1))) {
+        int who = __lg(msk);
+        for (int i = 0; i < n; ++i)
+          dp[msk][i] =
+            vcost[ter[who]] + dst[ter[who]][i];
+      }
+      for (int i = 0; i < n; ++i)
+        for (int submsk = (msk - 1) & msk; submsk;
+             submsk = (submsk - 1) & msk)
+          dp[msk][i] = min(dp[msk][i],
+            dp[submsk][i] + dp[msk ^ submsk][i] -
+              vcost[i]);
+      for (int i = 0; i < n; ++i) {
+        tdst[i] = INF;
+        for (int j = 0; j < n; ++j)
+          tdst[i] =
+            min(tdst[i], dp[msk][j] + dst[j][i]);
+      }
+      for (int i = 0; i < n; ++i) dp[msk][i] = tdst[i];
+    }
+    int ans = INF;
+    for (int i = 0; i < n; ++i)
+      ans = min(ans, dp[(1 << t) - 1][i]);
+    return ans;
+  }
+};
