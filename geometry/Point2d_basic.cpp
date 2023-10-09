@@ -28,6 +28,7 @@ bool polar(P<T> a, P<T> b) {
     bool ua = up(a), ub = up(b);
     return ua != ub ? ua : sign(cross(a, b)) == 1;
 }
+bool sameDirection(P<T> a, P<T> b) { return sign(cross(a, b)) == 0 && sign(dot(a, b)) == 1; }
 // 1/0/1 if on a->b's left/ /right
 int side(P<T> p, P<T> a, P<T> b) { return sign(cross(p, a, b)); }
 int side(P<T> p, L<T> l) { return side(p, l.a, l.b); }
@@ -35,8 +36,7 @@ P<T> rotate90(P<T> p) { return {-p.y, p.x}; }
 P<Real> rotate(P<Real> p, Real ang) { return {p.x * cos(ang) - p.y * sin(ang), p.x * sin(ang) + p.y * cos(ang)}; }
 Real angle(P<T> p) { return atan2(p.y, p.x); }
 P<T> direction(L<T> l) { return l.b - l.a; }
-bool parallel(L<T> l1, L<T> l2) { return sign(cross(direction(l1), direction(l2))) == 0; }
-bool sameDirection(L<T> l1, L<T> l2) { return parallel(l1, l2) && sign(dot(direction(l1), direction(l2))) == 1; }
+bool sameDirection(L<T> l1, L<T> l2) { return sameDirection(direction(l1), direction(l2)); }
 P<Real> projection(P<Real> p, L<Real> l) {
     auto d = direction(l);
     return l.a + d * (dot(p - l.a, d) / square(d));
