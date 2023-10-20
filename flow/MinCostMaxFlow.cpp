@@ -18,7 +18,6 @@ public:
         Cost cost;
     };
     edge getEdge(int i) {
-        int m = int(pos.size());
         auto _e = g[pos[i].first][pos[i].second];
         auto _re = g[_e.v][_e.rev];
         return {pos[i].first, _e.v, _e.cap + _re.cap, _re.cap, _e.cost};
