@@ -19,6 +19,6 @@ template<class T> void debug(T l, T r) { while (l != r) cerr << *l << " \n"[next
 #define debug(...) 0
 #endif
 int main() {
-    cin.tie(nullptr)->sync_with_stdio(false);
-    return 0;
+  cin.tie(nullptr)->sync_with_stdio(false);
+  return 0;
 }
