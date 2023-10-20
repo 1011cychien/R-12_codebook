@@ -1,65 +1,110 @@
-namespace dlx {
-int lt[maxn], rg[maxn], up[maxn], dn[maxn], cl[maxn], rw[maxn], bt[maxn], s[maxn], head, sz, ans;
-void init(int c) {
-  for (int i = 0; i < c; ++i) {
-    up[i] = dn[i] = bt[i] = i;
-    lt[i] = i == 0 ? c : i - 1;
-    rg[i] = i == c - 1 ? c : i + 1;
-    s[i] = 0;
+#include <bits/stdc++.h>
+using namespace std;
+// tioj 1333
+#define TRAV(i, link, start) for (int i = link[start]; i != start; i = link[i])
+const int NN = 40000, RR = 200;
+template<bool E> // E: Exact, NN: num of 1s, RR: num of rows
+struct DLX {
+  int lt[NN], rg[NN], up[NN], dn[NN], rw[NN], cl[NN], bt[NN], s[NN], head, sz, ans;
+  int rows, columns;
+  bool vis[NN];
+  bitset<RR> sol, cur; // not sure
+  void remove(int c) {
+    if (E) lt[rg[c]] = lt[c], rg[lt[c]] = rg[c];
+    TRAV(i, dn, c) {
+      if (E) {
+        TRAV(j, rg, i)
+          up[dn[j]] = up[j], dn[up[j]] = dn[j], --s[cl[j]];
+      } else {
+        lt[rg[i]] = lt[i], rg[lt[i]] = rg[i];
+      }
+    }
   }
-  rg[c] = 0, lt[c] = c - 1;
-  up[c] = dn[c] = -1;
-  head = c, sz = c + 1;
-}
-void insert(int r, const vector<int> &col) {
-  if (col.empty()) return;
-  int f = sz;
-  for (int i = 0; i < (int)col.size(); ++i) {
-    int c = col[i], v = sz++;
-    dn[bt[c]] = v;
-    up[v] = bt[c], bt[c] = v;
-    rg[v] = (i + 1 == (int)col.size() ? f : v + 1);
-    rw[v] = r, cl[v] = c;
-    ++s[c];
-    if (i > 0) lt[v] = v - 1;
+  void restore(int c) {
+    TRAV(i, up, c) {
+      if (E) {
+        TRAV(j, lt, i)
+          ++s[cl[j]], up[dn[j]] = j, dn[up[j]] = j;
+      } else {
+        lt[rg[i]] = rg[lt[i]] = i;
+      }
+    }
+    if (E) lt[rg[c]] = c, rg[lt[c]] = c;
   }
-  lt[f] = sz - 1;
-}
-void remove(int c) {
-  lt[rg[c]] = lt[c], rg[lt[c]] = rg[c];
-  for (int i = dn[c]; i != c; i = dn[i]) {
-    for (int j = rg[i]; j != i; j = rg[j])
-      up[dn[j]] = up[j], dn[up[j]] = dn[j], --s[cl[j]];
+  void init(int c) {
+    rows = 0, columns = c;
+    for (int i = 0; i < c; ++i) {
+      up[i] = dn[i] = bt[i] = i;
+      lt[i] = i == 0 ? c : i - 1;
+      rg[i] = i == c - 1 ? c : i + 1;
+      s[i] = 0;
+    }
+    rg[c] = 0, lt[c] = c - 1;
+    up[c] = dn[c] = -1;
+    head = c, sz = c + 1;
   }
-}
-void restore(int c) {
-  for (int i = up[c]; i != c; i = up[i]) {
-    for (int j = lt[i]; j != i; j = lt[j])
-      ++s[cl[j]], up[dn[j]] = j, dn[up[j]] = j;
+  void insert(const vector<int> &col) {
+    if (col.empty()) return;
+    int f = sz;
+    for (int i = 0; i < (int)col.size(); ++i) {
+      int c = col[i], v = sz++;
+      dn[bt[c]] = v;
+      up[v] = bt[c], bt[c] = v;
+      rg[v] = (i + 1 == (int)col.size() ? f : v + 1);
+      rw[v] = rows, cl[v] = c;
+      ++s[c];
+      if (i > 0) lt[v] = v - 1;
+    }
+    ++rows, lt[f] = sz - 1;
   }
-  lt[rg[c]] = c, rg[lt[c]] = c;
-}
-// Call dlx::make after inserting all rows.
-void make(int c) {
-  for (int i = 0; i < c; ++i)
-    dn[bt[i]] = i, up[i] = bt[i];
-}
-void dfs(int dep) {
-  if (dep >= ans) return;
-  if (rg[head] == head) return ans = dep, void();
-  if (dn[rg[head]] == rg[head]) return;
-  int c = rg[head];
-  int w = c;
-  for (int x = c; x != head; x = rg[x]) if (s[x] < s[w]) w = x;
-  remove(w);
-  for (int i = dn[w]; i != w; i = dn[i]) {
-    for (int j = rg[i]; j != i; j = rg[j]) remove(cl[j]);
-    dfs(dep + 1);
-    for (int j = lt[i]; j != i; j = lt[j]) restore(cl[j]);
+  int h() {
+    int ret = 0;
+    fill_n(vis, sz, false);
+    TRAV(x, rg, head) {
+      if (vis[x]) continue;
+      vis[x] = true, ++ret;
+      TRAV(i, dn, x) TRAV(j, rg, i) vis[cl[j]] = true;
+    }
+    return ret;
   }
-  restore(w);
+  void dfs(int dep) {
+    if (dep + (E ? 0 : h()) >= ans) return;
+    if (rg[head] == head) return sol = cur, ans = dep, void();
+    if (dn[rg[head]] == rg[head]) return;
+    int w = rg[head];
+    TRAV(x, rg, head) if (s[x] < s[w]) w = x;
+    if (E) remove(w);
+    TRAV(i, dn, w) {
+      if (!E) remove(i);
+      TRAV(j, rg, i) remove(E ? cl[j] : j);
+      cur.set(rw[i]), dfs(dep + 1), cur.reset(rw[i]);
+      TRAV(j, lt, i) restore(E ? cl[j] : j);
+      if (!E) restore(i);
+    }
+    if (E) restore(w);
+  }
+  int solve() {
+    for (int i = 0; i < columns; ++i)
+      dn[bt[i]] = i, up[i] = bt[i];
+    ans = 1e9, sol.reset(), dfs(0);
+    return ans;
+  }
+};
+int main() {
+    int n, m; cin >> n >> m;
+    DLX<true> solver;
+    solver.init(m);
+    for (int i = 0; i < n; i++){
+        vector<int> add;
+        for (int j = 0; j < m; j++){
+            int x; cin >> x;
+            if (x == 1) {
+                add.push_back(j);
+            }
+        }
+        solver.insert(add);
+    }
+    cout << solver.solve() << '\n';
+    return 0;
 }
-int solve() {
-  ans = 1e9, dfs(0);
-  return ans;
-}}
+
