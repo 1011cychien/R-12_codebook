@@ -1,4 +1,4 @@
-\documentclass[a4paper,10pt,twocolumn,oneside]{article}
+\documentclass[a4paper,10pt,oneside]{article}
 \setlength{\columnsep}{10pt}                                                                    %兩欄模式的間距
 \setlength{\columnseprule}{0pt}                                                                %兩欄模式間格線粗細
 
@@ -16,6 +16,7 @@
 \usepackage{changepage}
 \usepackage{titlesec}
 \usepackage{amsmath}
+\usepackage{multicol}
 \usepackage{codebook}
 \usepackage[CheckSingle, CJKmath]{xeCJK}
 % \usepackage{CJKulem}
@@ -97,9 +98,10 @@ stringstyle=\itshape\color{Green4}
 \let\clearpage\relax
 % \tableofcontents
 \endgroup
-\tableofcontents
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % \newpage
+\begin{multicols*}{3}
+\tableofcontents
 
 \section{Basic}
 \code{vimrc}{basic/vimrc}
@@ -193,8 +195,9 @@ stringstyle=\itshape\color{Green4}
 \code{Cactus 2}{misc/BCT.cpp}
 \code{Dancing Links}{misc/DLX.cpp}
 \code{Offline Dynamic MST}{misc/DynamicMST.cpp}
-\code{Manhattan Distance MST}{misc/ManhattanMST.cpp}
 \tex{Matroid Intersection}{misc/Matroid.tex}
+\code{Euler Tour}{misc/EulerTour.cpp}
+\code{SegTree Beats}{misc/beats.cpp}
 \code{unorganized}{misc/random.cpp}
-
+\end{multicols*}
 \end{document}
