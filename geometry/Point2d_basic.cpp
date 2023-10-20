@@ -74,9 +74,9 @@ bool rayIntersect(L<T> l1, L<T> l2) {
     return x == 0 ? false : side(l1.a, l2) == x && side(l2.a, l1) == -x;
 }
 Real pointToSegDist(P<T> p, L<T> l) {
-    P<Real> q = projection(p, l);
-    if (pointOnSeg(q, l)) {
-        return dist(p, q);
+    auto d = direction(l);
+    if (sign(dot(p - l.a, d)) >= 0 && sign(dot(p - l.b, d)) <= 0) {
+        return 1.0L * cross(p, l.a, l.b) / dist(l.a, l.b);
     } else {
         return min(dist(p, l.a), dist(p, l.b));
     }
