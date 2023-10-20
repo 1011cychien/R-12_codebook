@@ -1,3 +1,32 @@
+vector<pll> Minkowski(vector<pll> A, vector<pll> B) {
+  hull(A), hull(B);
+  vector<pll> C(1, A[0] + B[0]), s1, s2; 
+  for (int i = 0; i < SZ(A); ++i) 
+    s1.pb(A[(i + 1) % SZ(A)] - A[i]);
+  for (int i = 0; i < SZ(B); i++) 
+    s2.pb(B[(i + 1) % SZ(B)] - B[i]);
+  for (int i = 0, j = 0; i < SZ(A) || j < SZ(B);)
+    if (j >= SZ(B) || (i < SZ(A) && cross(s1[i], s2[j]) >= 0))
+      C.pb(B[j % SZ(B)] + A[i++]);
+    else
+      C.pb(A[i % SZ(A)] + B[j++]);
+  return hull(C), C;
+}
+
+bool PointInConvex(const vector<pll> &C, pll p, bool strict = true) {
+  int a = 1, b = SZ(C) - 1, r = !strict;
+  if (SZ(C) == 0) return false;
+  if (SZ(C) < 3) return r && btw(C[0], C.back(), p);
+  if (ori(C[0], C[a], C[b]) > 0) swap(a, b);
+  if (ori(C[0], C[a], p) >= r || ori(C[0], C[b], p) <= -r)
+    return false;
+  while (abs(a - b) > 1) {
+    int c = (a + b) / 2;
+    (ori(C[0], C[c], p) > 0 ? b : a) = c;
+  }
+  return ori(C[a], C[b], p) < r;
+}
+
 const int N = 1021;
 struct CircleCover {
   int C; 
@@ -60,6 +89,133 @@ struct CircleCover {
     }
   }
 };
+
+struct Point {
+  double x, y, z;
+  Point(double _x = 0, double _y = 0, double _z = 0): x(_x), y(_y), z(_z){}
+  Point(pdd p) { x = p.X, y = p.Y, z = abs2(p); }
+};
+Point operator-(Point p1, Point p2)
+{ return Point(p1.x - p2.x, p1.y - p2.y, p1.z - p2.z); }
+Point operator+(Point p1, Point p2)
+{ return Point(p1.x + p2.x, p1.y + p2.y, p1.z + p2.z); }
+Point operator*(Point p1, double v)
+{ return Point(p1.x * v, p1.y * v, p1.z * v); }
+Point operator/(Point p1, double v)
+{ return Point(p1.x / v, p1.y / v, p1.z / v); }
+Point cross(Point p1, Point p2)
+{ return Point(p1.y * p2.z - p1.z * p2.y, p1.z * p2.x - p1.x * p2.z, p1.x * p2.y - p1.y * p2.x); }
+double dot(Point p1, Point p2)
+{ return p1.x * p2.x + p1.y * p2.y + p1.z * p2.z; }
+double abs(Point a)
+{ return sqrt(dot(a, a)); }
+Point cross3(Point a, Point b, Point c)
+{ return cross(b - a, c - a); }
+double area(Point a, Point b, Point c)
+{ return abs(cross3(a, b, c)); }
+double volume(Point a, Point b, Point c, Point d)
+{ return dot(cross3(a, b, c), d - a); }
+//Azimuthal angle (longitude) to x-axis in interval [-pi, pi]
+double phi(Point p) { return atan2(p.y, p.x); } 
+//Zenith angle (latitude) to the z-axis in interval [0, pi]
+double theta(Point p) { return atan2(sqrt(p.x * p.x + p.y * p.y), p.z); }
+Point masscenter(Point a, Point b, Point c, Point d)
+{ return (a + b + c + d) / 4; }
+pdd proj(Point a, Point b, Point c, Point u) {
+// proj. u to the plane of a, b, and c
+  Point e1 = b - a;
+  Point e2 = c - a;
+  e1 = e1 / abs(e1);
+  e2 = e2 - e1 * dot(e2, e1);
+  e2 = e2 / abs(e2);
+  Point p = u - a;
+  return pdd(dot(p, e1), dot(p, e2));
+}
+Point rotate_around(Point p, double angle, Point axis) {
+  double s = sin(angle), c = cos(angle);
+  Point u = axis / abs(axis);
+  return u * dot(u, p) * (1 - c) + p * c + cross(u, p) * s;
+}
+
+struct convex_hull_3D {
+struct Face {
+  int a, b, c;
+  Face(int ta, int tb, int tc): a(ta), b(tb), c(tc) {}
+}; // return the faces with pt indexes
+vector<Face> res;
+vector<Point> P;
+convex_hull_3D(const vector<Point> &_P): res(), P(_P) {
+// all points coplanar case will WA, O(n^2)
+  int n = SZ(P);
+  if (n <= 2) return; // be careful about edge case
+  // ensure first 4 points are not coplanar
+  swap(P[1], *find_if(ALL(P), [&](auto p) { return sign(abs2(P[0] - p)) != 0; }));
+  swap(P[2], *find_if(ALL(P), [&](auto p) { return sign(abs2(cross3(p, P[0], P[1]))) != 0; }));
+  swap(P[3], *find_if(ALL(P), [&](auto p) { return sign(volume(P[0], P[1], P[2], p)) != 0; }));
+  vector<vector<int>> flag(n, vector<int>(n));
+  res.emplace_back(0, 1, 2); res.emplace_back(2, 1, 0);
+  for (int i = 3; i < n; ++i) {
+    vector<Face> next;
+    for (auto f : res) {
+      int d = sign(volume(P[f.a], P[f.b], P[f.c], P[i]));
+      if (d <= 0) next.pb(f);
+      int ff = (d > 0) - (d < 0);
+      flag[f.a][f.b] = flag[f.b][f.c] = flag[f.c][f.a] = ff;
+    }
+    for (auto f : res) {
+      auto F = [&](int x, int y) {
+        if (flag[x][y] > 0 && flag[y][x] <= 0)
+          next.emplace_back(x, y, i);
+      };
+      F(f.a, f.b); F(f.b, f.c); F(f.c, f.a);
+    }
+    res = next;
+  }
+}
+bool same(Face s, Face t) {
+  if (sign(volume(P[s.a], P[s.b], P[s.c], P[t.a])) != 0) return 0;
+  if (sign(volume(P[s.a], P[s.b], P[s.c], P[t.b])) != 0) return 0;
+  if (sign(volume(P[s.a], P[s.b], P[s.c], P[t.c])) != 0) return 0;
+  return 1;
+}
+int polygon_face_num() {
+  int ans = 0;
+  for (int i = 0; i < SZ(res); ++i)
+    ans += none_of(res.begin(), res.begin() + i, [&](Face g) { return same(res[i], g); });
+  return ans;
+}
+double get_volume() {
+  double ans = 0;
+  for (auto f : res)
+    ans += volume(Point(0, 0, 0), P[f.a], P[f.b], P[f.c]);
+  return fabs(ans / 6);
+}
+double get_dis(Point p, Face f) {
+  Point p1 = P[f.a], p2 = P[f.b], p3 = P[f.c];                    
+  double a = (p2.y - p1.y) * (p3.z - p1.z) - (p2.z - p1.z) * (p3.y - p1.y); 
+  double b = (p2.z - p1.z) * (p3.x - p1.x) - (p2.x - p1.x) * (p3.z - p1.z); 
+  double c = (p2.x - p1.x) * (p3.y - p1.y) - (p2.y - p1.y) * (p3.x - p1.x); 
+  double d = 0 - (a * p1.x + b * p1.y + c * p1.z); 
+  return fabs(a * p.x + b * p.y + c * p.z + d) / sqrt(a * a + b * b + c * c);                    
+}
+};
+// n^2 delaunay: facets with negative z normal of
+// convexhull of (x, y, x^2 + y^2), use a pseudo-point
+// (0, 0, inf) to avoid degenerate case
+
+vector<pdd> cut(vector<pdd> poly, pdd s, pdd e) {
+  vector<pdd> res;
+  for (int i = 0; i < SZ(poly); ++i) {
+    pdd cur = poly[i], prv = i ? poly[i - 1] : poly.back();
+    bool side = ori(s, e, cur) < 0;
+    if (side != (ori(s, e, prv) < 0))
+      res.pb(intersect(s, e, cur, prv));
+    if (side)
+      res.pb(cur);
+  }
+  return res;
+}
+
 // p, q is convex
 double TwoConvexHullMinDist(Point P[], Point Q[], int n, int m) {
   int YMinP = 0, YMaxQ = 0;
@@ -75,6 +231,7 @@ double TwoConvexHullMinDist(Point P[], Point Q[], int n, int m) {
   }
   return ans;
 }
+
 template <typename F, typename C> class MCMF {
   static constexpr F INF_F = numeric_limits<F>::max();
   static constexpr C INF_C = numeric_limits<C>::max();
@@ -343,6 +500,7 @@ double polyUnion(vector <vector <Pt>> poly) {
     }
     return ans / 2;
 }
+
 // Minimum Steiner Tree, O(V 3^T + V^2 2^T)
 struct SteinerTree { // 0-base
   static const int T = 10, N = 105, INF = 1e9;
@@ -398,3 +556,501 @@ struct SteinerTree { // 0-base
     return ans;
   }
 };
+
+bool operator<(const P &a, const P &b) {
+  return same(a.x, b.x) ? a.y < b.y : a.x < b.x;
+}
+bool operator>(const P &a, const P &b) {
+  return same(a.x, b.x) ? a.y > b.y : a.x > b.x;
+}
+
+#define crx(a, b, c) ((b - a) ^ (c - a))
+
+vector<P> convex(vector<P> ps) {
+  vector<P> p;
+  sort(ps.begin(), ps.end(), [&] (P a, P b) { return same(a.x, b.x) ? a.y < b.y : a.x < b.x; });
+  for (int i = 0; i < ps.size(); ++i) {
+    while (p.size() >= 2 && crx(p[p.size() - 2], ps[i], p[p.size() - 1]) >= 0) p.pop_back();
+    p.push_back(ps[i]);
+  }
+  int t = p.size();
+  for (int i = (int)ps.size() - 2; i >= 0; --i) {
+    while (p.size() > t && crx(p[p.size() - 2], ps[i], p[p.size() - 1]) >= 0) p.pop_back();
+    p.push_back(ps[i]);
+  }
+  p.pop_back();
+  return p;
+}
+
+int sgn(double x) { return same(x, 0) ? 0 : x > 0 ? 1 : -1; }
+
+P isLL(P p1, P p2, P q1, P q2) {
+  double a = crx(q1, q2, p1), b = -crx(q1, q2, p2);
+  return (p1 * b + p2 * a) / (a + b);
+}
+
+struct CH {
+  int n;
+  vector<P> p, u, d;
+  CH() {}
+  CH(vector<P> ps) : p(ps) {
+    n = ps.size();
+    rotate(p.begin(), min_element(p.begin(), p.end()), p.end());
+    auto t = max_element(p.begin(), p.end());
+    d = vector<P>(p.begin(), next(t));
+    u = vector<P>(t, p.end()); u.push_back(p[0]);
+  }
+  int find(vector<P> &v, P d) {
+    int l = 0, r = v.size();
+    while (l + 5 < r) {
+      int L = (l * 2 + r) / 3, R = (l + r * 2) / 3;
+      if (v[L] * d > v[R] * d) r = R;
+      else l = L;
+    }
+    int x = l;
+    for (int i = l + 1; i < r; ++i) if (v[i] * d > v[x] * d) x = i;
+    return x;
+  }
+  int findFarest(P v) {
+    if (v.y > 0 || v.y == 0 && v.x > 0) return ((int)d.size() - 1 + find(u, v)) % p.size();
+    return find(d, v);
+  }
+  P get(int l, int r, P a, P b) {
+    int s = sgn(crx(a, b, p[l % n]));
+    while (l + 1 < r) {
+      int m = (l + r) >> 1;
+      if (sgn(crx(a, b, p[m % n])) == s) l = m;
+      else r = m;
+    }
+    return isLL(a, b, p[l % n], p[(l + 1) % n]);
+  }
+  vector<P> getLineIntersect(P a, P b) {
+    int X = findFarest((b - a).rot(pi / 2));
+    int Y = findFarest((a - b).rot(pi / 2));
+    if (X > Y) swap(X, Y);
+    if (sgn(crx(a, b, p[X])) * sgn(crx(a, b, p[Y])) < 0) return {get(X, Y, a, b), get(Y, X + n, a, b)};
+    return {}; // tangent case falls here
+  }
+  void update_tangent(P q, int i, int &a, int &b) {
+    if (sgn(crx(q, p[a], p[i])) > 0) a = i;
+    if (sgn(crx(q, p[b], p[i])) < 0) b = i;
+  }
+  void bs(int l, int r, P q, int &a, int &b) {
+    if (l == r) return;
+    update_tangent(q, l % n, a, b);
+    int s = sgn(crx(q, p[l % n], p[(l + 1) % n]));
+    while (l + 1 < r) {
+      int m = (l + r) >> 1;
+      if (sgn(crx(q, p[m % n], p[(m + 1) % n])) == s) l = m;
+      else r = m;
+    }
+    update_tangent(q, r % n, a, b);
+  }
+  int x = l;
+  for (int i = l + 1; i < r; ++i) if (v[i] * d > v[x] * d) x = i;
+  return x;
+}
+int findFarest(P v) {
+  if (v.y > 0 || v.y == 0 && v.x > 0) return ((int)d.size() - 1 + find(u, v)) % p.size();
+  return find(d, v);
+}
+P get(int l, int r, P a, P b) {
+  int s = sgn(crx(a, b, p[l % n]));
+  while (l + 1 < r) {
+    int m = (l + r) >> 1;
+    if (sgn(crx(a, b, p[m % n])) == s) l = m;
+    else r = m;
+  }
+  return isLL(a, b, p[l % n], p[(l + 1) % n]);
+}
+vector<P> getIS(P a, P b) {
+  int X = findFarest((b - a).spin(pi / 2));
+  int Y = findFarest((a - b).spin(pi / 2));
+  if (X > Y) swap(X, Y);
+  if (sgn(crx(a, b, p[X])) * sgn(crx(a, b, p[Y])) < 0) return {get(X, Y, a, b), get(Y, X + n, a, b)};
+  return {};
+}
+void update_tangent(P q, int i, int &a, int &b) {
+  if (sgn(crx(q, p[a], p[i])) > 0) a = i;
+  if (sgn(crx(q, p[b], p[i])) < 0) b = i;
+}
+void bs(int l, int r, P q, int &a, int &b) {
+  if (l == r) return;
+  update_tangent(q, l % n, a, b);
+  int s = sgn(crx(q, p[l % n], p[(l + 1) % n]));
+  while (l + 1 < r) {
+    int m = (l + r) >> 1;
+    if (sgn(crx(q, p[m % n], p[(m + 1) % n])) == s) l = m;
+    else r = m;
+  }
+  update_tangent(q, r % n, a, b);
+}
+bool contain(P p) {
+  if (p.x < d[0].x || p.x > d.back().x) return 0;
+  auto it = lower_bound(d.begin(), d.end(), P(p.x, -1e12));
+  if (it->x == p.x) {
+    if (it->y > p.y) return 0;
+  } else if (crx(*prev(it), *it, p) < -eps) return 0;
+  it = lower_bound(u.begin(), u.end(), P(p.x, 1e12), greater<P>());
+  if (it->x == p.x) {
+    if (it->y < p.y) return 0;
+  } else if (crx(*prev(it), *it, p) < -eps) return 0;
+  return 1;
+}
+bool get_tangent(P p, int &a, int &b) { // b -> a
+  if (contain(p)) return 0;
+  a = b = 0;
+  int i = lower_bound(d.begin(), d.end(), p) - d.begin();
+  bs(0, i, p, a, b);
+  bs(i, d.size(), p, a, b);
+  i = lower_bound(u.begin(), u.end(), p, greater<P>()) - u.begin();
+  bs((int)d.size() - 1, (int)d.size() - 1 + i, p, a, b);
+  bs((int)d.size() - 1 + i, (int)d.size() - 1 + u.size(), p, a, b);
+  return 1;
+}
+};
+
+double rat(pll a, pll b) {
+  return sign(b.X) ? (double)a.X / b.X : (double)a.Y / b.Y;
+} // all poly. should be ccw
+double polyUnion(vector<vector<pll>> &poly) {
+  double res = 0;
+  for (auto &p : poly)
+    for (int a = 0; a < SZ(p); ++a) {
+      pll A = p[a], B = p[(a + 1) % SZ(p)];
+      vector<pair<double, int>> segs = {{0, 0}, {1, 0}};
+      for (auto &q : poly) {
+        if (&p == &q) continue;
+        for (int b = 0; b < SZ(q); ++b) {
+          pll C = q[b], D = q[(b + 1) % SZ(q)];
+          int sc = ori(A, B, C), sd = ori(A, B, D);
+          if (sc != sd && min(sc, sd) < 0) {
+            double sa = cross(D - C, A - C), sb = cross(D - C, B - C);
+            segs.emplace_back(sa / (sa - sb), sign(sc - sd));
+          }
+          if (!sc && !sd && &q < &p && sign(dot(B - A, D - C)) > 0) {
+            segs.emplace_back(rat(C - A, B - A), 1);
+            segs.emplace_back(rat(D - A, B - A), -1);
+          }
+        }
+      }
+      sort(ALL(segs));
+      for (auto &s : segs) s.X = clamp(s.X, 0.0, 1.0);
+      double sum = 0;
+      int cnt = segs[0].second;
+      for (int j = 1; j < SZ(segs); ++j) {
+        if (!cnt) sum += segs[j].X - segs[j - 1].X;
+        cnt += segs[j].Y;
+      }
+      res += cross(A, B) * sum;
+    }
+  return res / 2;
+}
+
+llf simp(llf l, llf r) {
+llf m = (l + r) / 2;
+return (f(l) + f(r) + 4.0 * f(m)) * (r - l) / 6.0;
+}
+llf F(llf L, llf R, llf v, llf eps) {
+llf M = (L + R) / 2, vl = simp(L, M), vr = simp(M, R);
+if (abs(vl + vr - v) <= 15 * eps)
+return vl + vr + (vl + vr - v) / 15.0;
+return F(L, M, vl, eps / 2.0) +
+F(M, R, vr, eps / 2.0);
+} // call F(l, r, simp(l, r), 1e-6)
+
+pair<int, int> get_tangent(const vector<P> &v, P p) {
+const auto gao = [&, N = int(v.size())](int s) {
+  const auto lt = [&](int x, int y) {
+return ori(p, v[x % N], v[y % N]) == s; };
+int l = 0, r = N; bool up = lt(0, 1);
+while (r - l > 1) {
+int m = (l + r) / 2;
+if (lt(m, 0) ? up : !lt(m, m+1)) r = m;
+else l = m;
+}
+return (lt(l, r) ? r : l) % N;
+}; // test @ codeforces.com/gym/101201/problem/E
+return {gao(-1), gao(1)}; // (a,b):ori(p,v[a],v[b])<0
+} // plz ensure that point strictly out of hull
+
+1: Initialize m ∈ M and w ∈ W to free
+2: while ∃ free man m who has a woman w to propose to do
+3: w ← first woman on m’s list to whom m has not yet proposed
+4: if ∃ some pair (m′
+, w) then
+5: if w prefers m to m′
+then
+6: m′ ← free
+7: (m, w) ← engaged
+8: end if
+9: else
+10: (m, w) ← engaged
+11: end if
+12: end while
+
+// virtual tree
+vector<pair<int, int>> build(vector<int> vs, int r) {
+  vector<pair<int, int>> res;
+  sort(vs.begin(), vs.end(), [](int i, int j) {
+  return dfn[i] < dfn[j]; });
+  vector<int> s = {r};
+  for (int v : vs) if (v != r) {
+    if (int o = lca(v, s.back()); o != s.back()) {
+      while (s.size() >= 2) {
+        if (dfn[s[s.size() - 2]] < dfn[o]) break;
+        res.emplace_back(s[s.size() - 2], s.back());
+        s.pop_back();
+      }
+      if (s.back() != o) {
+        res.emplace_back(o, s.back());
+        s.back() = o;
+      }
+    }
+    s.push_back(v);
+  }
+  for (size_t i = 1; i < s.size(); ++i)
+    res.emplace_back(s[i - 1], s[i]);
+  return res; // (x, y): x->y
+}
+
+#define pb emplace_back
+#define rep(i, l, r) for (int i=(l); i<=(r); ++i)
+struct WeightGraph { // 1-based
+  static const int inf = INT_MAX;
+  struct edge { int u, v, w; }; int n, nx;
+  vector<int> lab; vector<vector<edge>> g;
+  vector<int> slack, match, st, pa, S, vis;
+  vector<vector<int>> flo, flo_from; queue<int> q;
+  WeightGraph(int n_) : n(n_), nx(n * 2), lab(nx + 1),
+    g(nx + 1, vector<edge>(nx + 1)),slack(nx + 1),
+    flo(nx + 1), flo_from(nx + 1, vector(n + 1, 0)) {
+    match = st = pa = S = vis = slack;
+    rep(u, 1, n) rep(v, 1, n) g[u][v] = {u, v, 0};
+  }
+  int ED(edge e) {
+    return lab[e.u] + lab[e.v] - g[e.u][e.v].w * 2; }
+  void update_slack(int u, int x, int &s) {
+    if (!s || ED(g[u][x]) < ED(g[s][x])) s = u; }
+  void set_slack(int x) {
+    slack[x] = 0;
+    for (int u = 1; u <= n; ++u)
+      if (g[u][x].w > 0 && st[u] != x && S[st[u]] == 0)
+        update_slack(u, x, slack[x]);
+  }
+  void q_push(int x) {
+    if (x <= n) q.push(x);
+    else for (int y : flo[x]) q_push(y);
+  }
+  void set_st(int x, int b) {
+    st[x] = b;
+    if (x > n) for (int y : flo[x]) set_st(y, b);
+  }
+  vector<int> split_flo(auto &f, int xr) {
+    auto it = find(all(f), xr);
+    if (auto pr = it - f.begin(); pr % 2 == 1)
+      reverse(1 + all(f)), it = f.end() - pr;
+    auto res = vector(f.begin(), it);
+    return f.erase(f.begin(), it), res;
+  }
+  void set_match(int u, int v) {
+    match[u] = g[u][v].v;
+    if (u <= n) return;
+    int xr = flo_from[u][g[u][v].u];
+    auto &f = flo[u], z = split_flo(f, xr);
+    rep(i, 0, int(z.size())-1) set_match(z[i], z[i ^ 1]);
+    set_match(xr, v); f.insert(f.end(), all(z));
+  }
+  void augment(int u, int v) {
+    for (;;) {
+      int xnv = st[match[u]]; set_match(u, v);
+      if (!xnv) return;
+      set_match(xnv, st[pa[xnv]]);
+      u = st[pa[xnv]], v = xnv;
+    }
+  }
+  int lca(int u, int v) {
+    static int t = 0; ++t;
+    for (++t; u || v; swap(u, v)) if (u) {
+      if (vis[u] == t) return u;
+      vis[u] = t; u = st[match[u]];
+      if (u) u = st[pa[u]];
+    }
+    return 0;
+  }
+  void add_blossom(int u, int o, int v) {
+    int b = int(find(n + 1 + all(st), 0) - begin(st));
+    lab[b] = 0, S[b] = 0; match[b] = match[o];
+    vector<int> f = {o};
+    for (int x = u, y; x != o; x = st[pa[y]])
+      f.pb(x), f.pb(y = st[match[x]]), q_push(y);
+    reverse(1 + all(f));
+    for (int x = v, y; x != o; x = st[pa[y]])
+      f.pb(x), f.pb(y = st[match[x]]), q_push(y);
+    flo[b] = f; set_st(b, b);
+    for (int x = 1; x <= nx; ++x)
+      g[b][x].w = g[x][b].w = 0;
+    for (int x = 1; x <= n; ++x) flo_from[b][x] = 0;
+    for (int xs : flo[b]) {
+      for (int x = 1; x <= nx; ++x)
+        if (g[b][x].w == 0 || ED(g[xs][x]) < ED(g[b][x]))
+          g[b][x] = g[xs][x], g[x][b] = g[x][xs];
+      for (int x = 1; x <= n; ++x)
+        if (flo_from[xs][x]) flo_from[b][x] = xs;
+    }
+    set_slack(b);
+  }
+  void expand_blossom(int b) {
+    for (int x : flo[b]) set_st(x, x);
+    int xr = flo_from[b][g[b][pa[b]].u], xs = -1;
+    for (int x : split_flo(flo[b], xr)) {
+      if (xs == -1) { xs = x; continue; }
+      pa[xs] = g[x][xs].u; S[xs] = 1, S[x] = 0;
+      slack[xs] = 0; set_slack(x); q_push(x); xs = -1;
+    }
+    for (int x : flo[b])
+      if (x == xr) S[x] = 1, pa[x] = pa[b];
+      else S[x] = -1, set_slack(x);
+    st[b] = 0;
+  }
+  bool on_found_edge(const edge &e) {
+    if (int u = st[e.u], v = st[e.v]; S[v] == -1) {
+      int nu = st[match[v]]; pa[v] = e.u; S[v] = 1;
+      slack[v] = slack[nu] = 0; S[nu] = 0; q_push(nu);
+    } else if (S[v] == 0) {
+      if (int o = lca(u, v)) add_blossom(u, o, v);
+      else return augment(u, v), augment(v, u), true;
+    }
+    return false;
+  }
+  bool matching() {
+    ranges::fill(S, -1); ranges::fill(slack, 0);
+    q = queue<int>();
+    for (int x = 1; x <= nx; ++x)
+      if (st[x] == x && !match[x])
+        pa[x] = 0, S[x] = 0, q_push(x);
+    if (q.empty()) return false;
+    for (;;) {
+      while (q.size()) {
+        int u = q.front(); q.pop();
+        if (S[st[u]] == 1) continue;
+        for (int v = 1; v <= n; ++v)
+          if (g[u][v].w > 0 && st[u] != st[v]) {
+            if (ED(g[u][v]) != 0)
+              update_slack(u, st[v], slack[st[v]]);
+            else if (on_found_edge(g[u][v])) return true;
+          }
+      }
+      int d = inf;
+      for (int b = n + 1; b <= nx; ++b)
+        if (st[b] == b && S[b] == 1)
+          d = min(d, lab[b] / 2);
+      for (int x = 1; x <= nx; ++x)
+        if (int s = slack[x]; st[x] == x && s && S[x] <= 0)
+          d = min(d, ED(g[s][x]) / (S[x] + 2));
+      for (int u = 1; u <= n; ++u)
+        if (S[st[u]] == 1) lab[u] += d;
+        else if (S[st[u]] == 0) {
+          if (lab[u] <= d) return false;
+          lab[u] -= d;
+        }
+      rep(b, n + 1, nx) if (st[b] == b && S[b] >= 0)
+        lab[b] += d * (2 - 4 * S[b]);
+      for (int x = 1; x <= nx; ++x)
+        if (int s = slack[x]; st[x] == x &&
+            s && st[s] != x && ED(g[s][x]) == 0)
+          if (on_found_edge(g[s][x])) return true;
+      for (int b = n + 1; b <= nx; ++b)
+        if (st[b] == b && S[b] == 1 && lab[b] == 0)
+          expand_blossom(b);
+    }
+    return false;
+  }
+  pair<lld, int> solve() {
+    ranges::fill(match, 0);
+    rep(u, 0, n) st[u] = u, flo[u].clear();
+    int w_max = 0;
+    rep(u, 1, n) rep(v, 1, n) {
+      flo_from[u][v] = (u == v ? u : 0);
+      w_max = max(w_max, g[u][v].w);
+    }
+    for (int u = 1; u <= n; ++u) lab[u] = w_max;
+    int n_matches = 0; lld tot_weight = 0;
+    while (matching()) ++n_matches;
+    rep(u, 1, n) if (match[u] && match[u] < u)
+      tot_weight += g[u][match[u]].w;
+    return make_pair(tot_weight, n_matches);
+  }
+  void set_edge(int u, int v, int w) {
+    g[u][v].w = g[v][u].w = w; }
+};
+
+// 2D range add, range sum in log^2
+struct seg {
+  int l, r;
+  ll sum, lz;
+  seg *ch[2]{};
+  seg(int _l, int _r) : l(_l), r(_r), sum(0), lz(0) {}
+  void push() {
+    if (lz) ch[0]->add(l, r, lz), ch[1]->add(l, r, lz), lz = 0;
+  }
+  void pull() { sum = ch[0]->sum + ch[1]->sum; }
+  void add(int _l, int _r, ll d) {
+    if (_l <= l && r <= _r) {
+      sum += d * (r - l), lz += d;
+      return;
+    }
+    if (!ch[0]) ch[0] = new seg(l, l + r >> 1), ch[1] = new seg(l + r >> 1, r);
+    push();
+    if (_l < l + r >> 1) ch[0]->add(_l, _r, d);
+    if (l + r >> 1 < _r) ch[1]->add(_l, _r, d);
+    pull();
+  }
+  ll qsum(int _l, int _r) {
+    if (_l <= l && r <= _r) return sum;
+    if (!ch[0]) return lz * (min(r, _r) - max(l, _l));
+    push();
+    ll res = 0;
+    if (_l < l + r >> 1) res += ch[0]->qsum(_l, _r);
+    if (l + r >> 1 < _r) res += ch[1]->qsum(_l, _r);
+    return res;
+  }
+};
+struct seg2 {
+  int l, r;
+  seg v, lz;
+  seg2 *ch[2]{};
+  seg2(int _l, int _r) : l(_l), r(_r), v(0, N), lz(0, N) {
+    if (l < r - 1) ch[0] = new seg2(l, l + r >> 1), ch[1] = new seg2(l + r >> 1, r);
+  }
+  void add(int _l, int _r, int _l2, int _r2, ll d) {
+    v.add(_l2, _r2, d * (min(r, _r) - max(l, _l)));
+    if (_l <= l && r <= _r)
+      return lz.add(_l2, _r2, d), void(0);
+    if (_l < l + r >> 1)
+        ch[0]->add(_l, _r, _l2, _r2, d);
+    if (l + r >> 1 < _r)
+        ch[1]->add(_l, _r, _l2, _r2, d);
+  }
+  ll qsum(int _l, int _r, int _l2, int _r2) {
+    if (_l <= l && r <= _r) return v.qsum(_l2, _r2);
+    ll d = min(r, _r) - max(l, _l);
+    ll res = lz.qsum(_l2, _r2) * d;
+    if (_l < l + r >> 1)
+        res += ch[0]->qsum(_l, _r, _l2, _r2);
+    if (l + r >> 1 < _r)
+        res += ch[1]->qsum(_l, _r, _l2, _r2);
+    return res;
+  }
+};
+
+PPPPPPartition number
+
+ans[0] = tmp[0] = 1;
+for (int i = 1; i * i <= n; i++) {
+  for (int rep = 0; rep < 2; rep++)
+    for (int j = i; j <= n - i * i; j++)
+      modadd(tmp[j], tmp[j-i]);
+  for (int j = i * i; j <= n; j++)
+    modadd(ans[j], tmp[j - i * i]);
+}

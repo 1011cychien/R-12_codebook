@@ -14,5 +14,5 @@ vector<P<T>> convexHull(vector<P<T>> a) {
   b.resize(j - 1);
   return b;
 }
-// nonstrct : change <= 0 to < 0
+// nonstrict : change <= 0 to < 0
 // warning : if all point on same line will return {1, 2, 3, 2}

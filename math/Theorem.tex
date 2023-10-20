@@ -1,22 +1,148 @@
-\subsubsection{Kirchhoff's Theorem}
+% Source: waynedisonitau123 & 8BQube
+
+\begin{itemize}
+\item Kirchhoff's Theorem
+
 Denote $L$ be a $n \times n$ matrix as the Laplacian matrix of graph $G$, where $L_{ii} = d(i)$, $L_{ij} = -c$ where $c$ is the number of edge $(i, j)$ in $G$.
 \begin{itemize}
-    \itemsep-0.5em
     \item The number of undirected spanning in $G$ is $\lvert \det(\tilde{L}_{11}) \rvert$.
     \item The number of directed spanning tree rooted at $r$ in $G$ is $\lvert \det(\tilde{L}_{rr}) \rvert$.
 \end{itemize}
 
-\subsubsection{Tutte's Matrix}
+\item Tutte's Matrix
+
 Let $D$ be a $n \times n$ matrix, where $d_{ij} = x_{ij}$ ($x_{ij}$ is chosen uniformly at random) if $i < j$ and $(i, j) \in E$, otherwise $d_{ij} = -d_{ji}$. $\frac{rank(D)}{2}$ is the maximum matching on $G$.
 
-\subsubsection{Cayley's Formula}
+\item Cayley's Formula
+
 \begin{itemize}
-    \itemsep-0.5em
-  \item Given a degree sequence $d_1, d_2, \ldots, d_n$ for each \textit{labeled} vertices, there are $\frac{(n - 2)!}{(d_1 - 1)!(d_2 - 1)!\cdots(d_n - 1)!}$ spanning trees.
+  \item Given a degree sequence $d_1, d_2, \ldots, d_n$ for each \textit{labeled} vertices, there are $$\frac{(n - 2)!}{(d_1 - 1)!(d_2 - 1)!\cdots(d_n - 1)!}$$ spanning trees.
   \item Let $T_{n, k}$ be the number of \textit{labeled} forests on $n$ vertices with $k$ components, such that vertex $1, 2, \ldots, k$ belong to different components. Then $T_{n, k} = kn^{n - k - 1}$.
 \end{itemize}
 
-\subsubsection{Erdős–Gallai Theorem}
+\item Erdős–Gallai Theorem
+
 A sequence of non-negative integers $d_1 \geq d_2 \geq \ldots \geq d_n$ can be represented as the degree sequence of a finite simple graph on $n$ vertices if and only if $d_1 + d_2 + \ldots + d_n$ is even and
 $$ \sum_{i = 1}^{k}d_i \leq k(k - 1) + \sum_{i = k + 1}^{n}\min(d_i, k) $$
 holds for all $1 \leq k \leq n$.
+
+\item Burnside's Lemma
+
+Let $X$ be a set and $G$ be a group that acts on $X$.
+For $g \in G$, denote by $X^g$ the elements fixed by $g$:
+\[
+X^g = \{ x \in X \mid gx \in X \}
+\]
+Then
+\[
+|X/G| = \frac{1}{|G|} \sum_{g \in G} |X^g|.
+\]
+
+\item Gale–Ryser theorem
+
+A pair of sequences of nonnegative integers $a_1\ge\cdots\ge a_n$ and $b_1,\ldots,b_n$ is bigraphic if and only if $\displaystyle\sum_{i=1}^n a_i=\displaystyle\sum_{i=1}^n b_i$ and $\displaystyle\sum_{i=1}^k a_i\le \displaystyle\sum_{i=1}^n\min(b_i,k)$ holds for every $1\le k\le n$. Sequences $a$ and $b$ called bigraphic if there is a labeled simple bipartite graph such that $a$ and $b$ is the degree sequence of this bipartite graph.
+
+\item Fulkerson–Chen–Anstee theorem
+
+A sequence $(a_1,b_1),\ldots,(a_n,b_n)$ of nonnegative integer pairs with $a_1\ge\cdots\ge a_n$ is digraphic if and only if $\displaystyle\sum_{i=1}^n a_i=\displaystyle\sum_{i=1}^n b_i$ and $\displaystyle\sum_{i=1}^k a_i\le \displaystyle\sum_{i=1}^k\min(b_i,k-1)+\displaystyle\sum_{i=k+1}^n\min(b_i,k)$ holds for every $1\le k\le n$. Sequences $a$ and $b$ called digraphic if there is a labeled simple directed graph such that each vertex $v_i$ has indegree $a_i$ and outdegree $b_i$.
+
+\item Pick's theorem
+
+For simple polygon, when points are all integer, we have $A=\text{\#\{lattice points in the interior\}} + \frac{\text{\#\{lattice points on the boundary\}}}{2} - 1$
+
+\item Möbius inversion formula
+
+\begin{itemize}
+    \itemsep-0.5em
+  \item $f(n)=\sum_{d\mid n}g(d)\Leftrightarrow g(n)=\sum_{d\mid n}\mu(d)f(\frac{n}{d})$
+  \item $f(n)=\sum_{n\mid d}g(d)\Leftrightarrow g(n)=\sum_{n\mid d}\mu(\frac{d}{n})f(d)$
+\end{itemize}
+
+\item Spherical cap
+
+\begin{itemize}
+    \itemsep-0.5em
+  \item A portion of a sphere cut off by a plane.
+  \item $r$: sphere radius, $a$: radius of the base of the cap, $h$: height of the cap, $\theta$: $\arcsin(a/r)$.
+  \item Volume $=\pi h^2(3r-h)/3=\pi h(3a^2+h^2)/6=\pi r^3(2+\cos\theta)(1-\cos\theta)^2/3$.
+  \item Area $=2\pi rh=\pi(a^2+h^2)=2\pi r^2(1-\cos\theta)$.
+\end{itemize}
+\end{itemize}
+
+\begin{itemize}
+    \itemsep-0.5em
+    \item The number of divisors of $n$ is at most around $100$ for $n<5e4$, $500$ for $n<1e7$, $2000$ for $n<1e10$, $200000$ for $n<1e19$.
+    \item The number of ways of writing $n$ as a sum of positive integers, disregarding the order of the summands. $1, 1, 2, 3, 5, 7, 11, 15, 22, 30$ for $n=0\sim 9$, $627$ for $n=20$, $\sim 2e5$ for $n=50$, $\sim 2e8$ for $n=100$.
+    \item Total number of partitions of $n$ distinct elements: $B(n)=1, 1, 2, 5, 15, 52, 203, 877, 4140, 21147, 115975, 678570, 4213597,$\\
+    $27644437, 190899322, \ldots$.
+\end{itemize}
+
+\begin{itemize}
+\item Ordinary Generating Function
+$A(x) = \sum_{i\ge 0} a_ix^i$
+\begin{itemize}
+    \itemsep-0.5em
+    \item $A(rx)             \Rightarrow r^na_n$
+    \item $A(x) + B(x)       \Rightarrow a_n + b_n$
+    \item $A(x)B(x)          \Rightarrow \sum_{i=0}^{n} a_ib_{n-i}$
+    \item $A(x)^k            \Rightarrow \sum_{i_1+i_2+\cdots+i_k=n} a_{i_1}a_{i_2}\ldots a_{i_k}$
+    \item $xA(x)'            \Rightarrow na_n$
+    \item $\frac{A(x)}{1-x}  \Rightarrow \sum_{i=0}^{n} a_i$
+\end{itemize}
+\item Exponential Generating Function
+$A(x) = \sum_{i\ge 0} \frac{a_i}{i!}x_i$
+\begin{itemize}
+    \itemsep-0.5em
+    \item $A(x) + B(x)       \Rightarrow a_n + b_n$
+    \item $A^{(k)}(x)        \Rightarrow a_{n+k}$
+    \item $A(x)B(x)          \Rightarrow \sum_{i=0}^{n} \binom{n}{i}a_ib_{n-i}$
+    \item $A(x)^k            \Rightarrow \sum_{i_1+i_2+\cdots+i_k=n} \binom{n}{i_1, i_2, \ldots, i_k}a_{i_1}a_{i_2}\ldots a_{i_k}$
+    \item $xA(x)             \Rightarrow na_n$
+\end{itemize}
+\item Special Generating Function
+\begin{itemize}
+    \itemsep-0.5em
+    \item $(1+x)^n           = \sum_{i\ge 0} \binom{n}{i}x^i$
+    \item $\frac{1}{(1-x)^n} = \sum_{i\ge 0} \binom{i}{n-1}x^i$
+\end{itemize}
+\end{itemize}
+
+\begin{itemize}
+\item Bernoulli numbers
+
+$B_0=1,B_1^{\pm}=\pm\frac{1}{2},B_2=\frac{1}{6},B_3=0$
+
+$\sum_{j=0}^m\binom{m+1}{j}B_j=0$, EGF is $B(x) = \frac{x}{e^x - 1}=\sum_{n=0}^\infty B_n\frac{x^n}{n!}$.
+
+$S_m(n)=\sum_{k=1}^nk^m=\frac{1}{m+1}\sum_{k=0}^m\binom{m+1}{k}B^{+}_kn^{m+1-k}$
+
+\item Stirling numbers of the second kind
+Partitions of $n$ distinct elements into exactly $k$ groups. 
+
+$S(n, k) = S(n - 1, k - 1) + kS(n - 1, k), S(n, 1) = S(n, n) = 1$
+
+$S(n, k) = \frac{1}{k!}\sum_{i=0}^{k}(-1)^{k-i}{k \choose i}i^n$
+
+$x^n     = \sum_{i=0}^{n} S(n, i) (x)_i$
+
+\item Pentagonal number theorem
+
+$\prod_{n=1}^{\infty}(1-x^n)=1+\sum_{k=1}^{\infty}(-1)^k\left(x^{k(3k+1)/2} + x^{k(3k-1)/2}\right)$
+
+% \item Catalan numbers
+
+% $C^{(k)}_n = \displaystyle \frac{1}{(k - 1)n + 1}\binom{kn}{n}$
+
+% $C^{(k)}(x) = 1 + x [C^{(k)}(x)]^k$
+
+\item Eulerian numbers
+
+Number of permutations $\pi \in S_n$ in which exactly $k$ elements are greater than the previous element. $k$ $j$:s s.t. $\pi(j)>\pi(j+1)$, $k+1$ $j$:s s.t. $\pi(j)\geq j$, $k$ $j$:s s.t. $\pi(j)>j$.
+
+$E(n,k) = (n-k)E(n-1,k-1) + (k+1)E(n-1,k)$
+
+$E(n,0) = E(n,n-1) = 1$
+
+$E(n,k) = \sum_{j=0}^k(-1)^j\binom{n+1}{j}(k+1-j)^n$
+
+\end{itemize}
