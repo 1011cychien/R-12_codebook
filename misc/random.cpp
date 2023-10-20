@@ -145,7 +145,6 @@ public:
         }
       }
     }
-
     C w = 0;
     for (size_t i = 1; i + 2 < f.size(); i += 2)
       w -= f[i] * get<3>(es[i]);
