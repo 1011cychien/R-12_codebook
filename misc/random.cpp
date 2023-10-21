@@ -1,32 +1,3 @@
-vector<pll> Minkowski(vector<pll> A, vector<pll> B) {
-  hull(A), hull(B);
-  vector<pll> C(1, A[0] + B[0]), s1, s2; 
-  for (int i = 0; i < SZ(A); ++i) 
-    s1.pb(A[(i + 1) % SZ(A)] - A[i]);
-  for (int i = 0; i < SZ(B); i++) 
-    s2.pb(B[(i + 1) % SZ(B)] - B[i]);
-  for (int i = 0, j = 0; i < SZ(A) || j < SZ(B);)
-    if (j >= SZ(B) || (i < SZ(A) && cross(s1[i], s2[j]) >= 0))
-      C.pb(B[j % SZ(B)] + A[i++]);
-    else
-      C.pb(A[i % SZ(A)] + B[j++]);
-  return hull(C), C;
-}
-
-bool PointInConvex(const vector<pll> &C, pll p, bool strict = true) {
-  int a = 1, b = SZ(C) - 1, r = !strict;
-  if (SZ(C) == 0) return false;
-  if (SZ(C) < 3) return r && btw(C[0], C.back(), p);
-  if (ori(C[0], C[a], C[b]) > 0) swap(a, b);
-  if (ori(C[0], C[a], p) >= r || ori(C[0], C[b], p) <= -r)
-    return false;
-  while (abs(a - b) > 1) {
-    int c = (a + b) / 2;
-    (ori(C[0], C[c], p) > 0 ? b : a) = c;
-  }
-  return ori(C[a], C[b], p) < r;
-}
-
 const int N = 1021;
 struct CircleCover {
   int C; 
@@ -447,60 +418,6 @@ int main() {
 	}
 }
 
-Pt LinesInter(Line a, Line b) {
-    double abc = (a.b - a.a) ^ (b.a - a.a);
-    double abd = (a.b - a.a) ^ (b.b - a.a);
-    if (sign(abc - abd) == 0) return b.b;// no inter
-    return (b.b * abc - b.a * abd) / (abc - abd);
-}
-vector <Pt> SegsInter(Line a, Line b) {
-    if (btw(a.a, a.b, b.a)) return {b.a};
-    if (btw(a.a, a.b, b.b)) return {b.b};
-    if (btw(b.a, b.b, a.a)) return {a.a};
-    if (btw(b.a, b.b, a.b)) return {a.b};
-    if (ori(a.a, a.b, b.a) * ori(a.a, a.b, b.b) == -1 && ori(b.a, b.b, a.a) * ori(b.a, b.b, a.b) == -1) {
-        return {LinesInter(a, b)};
-    }
-    return {};
-}
-double polyUnion(vector <vector <Pt>> poly) {
-    int n = poly.size();
-    double ans = 0;
-    auto solve = [&](Pt a, Pt b, int cid) {
-        vector <pair <Pt, int>> event;
-        for (int i = 0; i < n; ++i) {
-            int st = 0, sz = poly[i].size();
-            while (st < sz && ori(poly[i][st], a, b) != 1) st++;
-            if (st == sz) continue;
-            for (int j = 0; j < sz; ++j) {
-                Pt c = poly[i][(j + st) % sz], d = poly[i][(j + st + 1) % sz];
-                if (sign((a - b) ^ (c - d)) != 0) {
-                    int ok1 = ori(c, a, b) == 1;
-                    int ok2 = ori(d, a, b) == 1;
-                    if (ok1 ^ ok2) event.emplace_back(LinesInter({a, b}, {c, d}), ok1 ? 1 : -1);
-                } else if (ori(c, a, b) == 0 && sign((a - b) * (c - d)) > 0 && i <= cid) {
-                    event.emplace_back(c, -1);
-                    event.emplace_back(d, 1);
-                }
-            }
-        }
-        sort(all(event), [&](pair <Pt, int> i, pair <Pt, int> j) {
-            return ((a - i.first) * (a - b)) < ((a - j.first) * (a - b));
-        });
-        int now = 0;
-        Pt lst = a;
-        for (auto [x, y] : event) {
-            if (btw(a, b, lst) && btw(a, b, x) && now == 0) ans += lst ^ x;
-            now += y, lst = x;
-        }
-    };
-    for (int i = 0; i < n; ++i) for (int j = 0; j < poly[i].size(); ++j) {
-        Pt a = poly[i][j], b = poly[i][(j + 1) % int(poly[i].size())];
-        solve(a, b, i);
-    }
-    return ans / 2;
-}
-
 // Minimum Steiner Tree, O(V 3^T + V^2 2^T)
 struct SteinerTree { // 0-base
   static const int T = 10, N = 105, INF = 1e9;
@@ -556,43 +473,6 @@ struct SteinerTree { // 0-base
     return ans;
   }
 };
-
-double rat(pll a, pll b) {
-  return sign(b.X) ? (double)a.X / b.X : (double)a.Y / b.Y;
-} // all poly. should be ccw
-double polyUnion(vector<vector<pll>> &poly) {
-  double res = 0;
-  for (auto &p : poly)
-    for (int a = 0; a < SZ(p); ++a) {
-      pll A = p[a], B = p[(a + 1) % SZ(p)];
-      vector<pair<double, int>> segs = {{0, 0}, {1, 0}};
-      for (auto &q : poly) {
-        if (&p == &q) continue;
-        for (int b = 0; b < SZ(q); ++b) {
-          pll C = q[b], D = q[(b + 1) % SZ(q)];
-          int sc = ori(A, B, C), sd = ori(A, B, D);
-          if (sc != sd && min(sc, sd) < 0) {
-            double sa = cross(D - C, A - C), sb = cross(D - C, B - C);
-            segs.emplace_back(sa / (sa - sb), sign(sc - sd));
-          }
-          if (!sc && !sd && &q < &p && sign(dot(B - A, D - C)) > 0) {
-            segs.emplace_back(rat(C - A, B - A), 1);
-            segs.emplace_back(rat(D - A, B - A), -1);
-          }
-        }
-      }
-      sort(ALL(segs));
-      for (auto &s : segs) s.X = clamp(s.X, 0.0, 1.0);
-      double sum = 0;
-      int cnt = segs[0].second;
-      for (int j = 1; j < SZ(segs); ++j) {
-        if (!cnt) sum += segs[j].X - segs[j - 1].X;
-        cnt += segs[j].Y;
-      }
-      res += cross(A, B) * sum;
-    }
-  return res / 2;
-}
 
 llf simp(llf l, llf r) {
 llf m = (l + r) / 2;
@@ -911,3 +791,336 @@ vector<string> Duval(const string& s){//b b abb a
 }
    return fact;
  }
+
+struct AC {
+    static constexpr int A = 26;
+    struct Node {
+        array<int, A> nxt;
+        int fail = -1;
+        Node() { nxt.fill(-1); }
+    };
+    vector<Node> t;
+    AC() : t(1) {}
+    int size() { return t.size(); }
+    Node& operator[](int i) { return t[i]; }
+    int add(const string &s, char offset = 'a') {
+        int u = 0;
+        for (auto ch : s) {
+            int c = ch - offset;
+            if (t[u].nxt[c] == -1) {
+                t[u].nxt[c] = t.size();
+                t.emplace_back();
+            }
+            u = t[u].nxt[c];
+        }
+        return u;
+    }
+    void build() {
+        vector<int> q;
+        for (auto &i : t[0].nxt) {
+            if (i == -1) {
+                i = 0;
+            } else {
+                q.push_back(i);
+                t[i].fail = 0;
+            }
+        }
+
+        for (int i = 0; i < int(q.size()); i++) {
+            int u = q[i];
+            if (u > 0) {
+                // maintain here?
+            }
+            for (int c = 0; c < A; c++) {
+                if (int v = t[u].nxt[c]; v != -1) {
+                    t[v].fail = t[t[u].fail].nxt[c];
+                    q.push_back(v);
+                } else {
+                    t[u].nxt[c] = t[t[u].fail].nxt[c];
+                }
+            }
+        }
+    }
+};
+
+/* bool pred(int a, int b);
+f(0) ~ f(n - 1) is a cyclic-shift U-function
+return idx s.t. pred(x, idx) is false forall x*/
+int cyc_tsearch(int n, auto pred) {
+  if (n == 1) return 0;
+  int l = 0, r = n; bool rv = pred(1, 0);
+  while (r - l > 1) {
+    int m = (l + r) / 2;
+    if (pred(0, m) ? rv: pred(m, (m + 1) % n)) r = m;
+    else l = m;
+  }
+  return pred(l, r % n) ? l : r % n;
+}
+
+// ---------------------------------------
+// intersection of line and hull
+int TangentDir(vector<pll> &C, pll dir) {
+  return cyc_tsearch(SZ(C), [&](int a, int b) {
+    return cross(dir, C[a]) > cross(dir, C[b]); 
+  });
+}
+#define cmpL(i) sign(cross(C[i] - a, b - a))
+pii lineHull(pll a, pll b, vector<pll> &C) {
+  int A = TangentDir(C, a - b);
+  int B = TangentDir(C, b - a);
+  int n = SZ(C);
+  if (cmpL(A) < 0 || cmpL(B) > 0) 
+    return pii(-1, -1); // no collision
+  auto gao = [&](int l, int r) {
+    for (int t = l; (l + 1) % n != r; ) {
+      int m = ((l + r + (l < r ? 0 : n)) / 2) % n;
+      (cmpL(m) == cmpL(t) ? l : r) = m;
+    }
+    return (l + !cmpL(r)) % n;
+  };
+  pii res = pii(gao(B, A), gao(A, B)); // (i, j)
+  if (res.X == res.Y) // touching the corner i
+    return pii(res.X, -1);
+  if (!cmpL(res.X) && !cmpL(res.Y)) // along side i, i+1 
+    switch ((res.X - res.Y + n + 1) % n) {
+      case 0: return pii(res.X, res.X);
+      case 2: return pii(res.Y, res.Y);
+    }
+  /* crossing sides (i, i+1) and (j, j+1)
+  crossing corner i is treated as side (i, i+1)
+  returned in the same order as the line hits the convex */
+  return res;
+} // convex cut: (r, l]
+
+//--------------------------------
+
+vector<pll> Minkowski(vector<pll> A, vector<pll> B) {
+  hull(A), hull(B);
+  vector<pll> C(1, A[0] + B[0]), s1, s2; 
+  for (int i = 0; i < SZ(A); ++i) 
+    s1.pb(A[(i + 1) % SZ(A)] - A[i]);
+  for (int i = 0; i < SZ(B); i++) 
+    s2.pb(B[(i + 1) % SZ(B)] - B[i]);
+  for (int i = 0, j = 0; i < SZ(A) || j < SZ(B);)
+    if (j >= SZ(B) || (i < SZ(A) && cross(s1[i], s2[j]) >= 0))
+      C.pb(B[j % SZ(B)] + A[i++]);
+    else
+      C.pb(A[i % SZ(A)] + B[j++]);
+  return hull(C), C;
+}
+
+bool PointInConvex(const vector<pll> &C, pll p, bool strict = true) {
+  int a = 1, b = SZ(C) - 1, r = !strict;
+  if (SZ(C) == 0) return false;
+  if (SZ(C) < 3) return r && btw(C[0], C.back(), p);
+  if (ori(C[0], C[a], C[b]) > 0) swap(a, b);
+  if (ori(C[0], C[a], p) >= r || ori(C[0], C[b], p) <= -r)
+    return false;
+  while (abs(a - b) > 1) {
+    int c = (a + b) / 2;
+    (ori(C[0], C[c], p) > 0 ? b : a) = c;
+  }
+  return ori(C[a], C[b], p) < r;
+}
+
+double rat(pll a, pll b) {
+  return sign(b.X) ? (double)a.X / b.X : (double)a.Y / b.Y;
+} // all poly. should be ccw
+double polyUnion(vector<vector<pll>> &poly) {
+  double res = 0;
+  for (auto &p : poly)
+    for (int a = 0; a < SZ(p); ++a) {
+      pll A = p[a], B = p[(a + 1) % SZ(p)];
+      vector<pair<double, int>> segs = {{0, 0}, {1, 0}};
+      for (auto &q : poly) {
+        if (&p == &q) continue;
+        for (int b = 0; b < SZ(q); ++b) {
+          pll C = q[b], D = q[(b + 1) % SZ(q)];
+          int sc = ori(A, B, C), sd = ori(A, B, D);
+          if (sc != sd && min(sc, sd) < 0) {
+            double sa = cross(D - C, A - C), sb = cross(D - C, B - C);
+            segs.emplace_back(sa / (sa - sb), sign(sc - sd));
+          }
+          if (!sc && !sd && &q < &p && sign(dot(B - A, D - C)) > 0) {
+            segs.emplace_back(rat(C - A, B - A), 1);
+            segs.emplace_back(rat(D - A, B - A), -1);
+          }
+        }
+      }
+      sort(ALL(segs));
+      for (auto &s : segs) s.X = clamp(s.X, 0.0, 1.0);
+      double sum = 0;
+      int cnt = segs[0].second;
+      for (int j = 1; j < SZ(segs); ++j) {
+        if (!cnt) sum += segs[j].X - segs[j - 1].X;
+        cnt += segs[j].Y;
+      }
+      res += cross(A, B) * sum;
+    }
+  return res / 2;
+}
+
+/* The point should be strictly out of hull
+  return arbitrary point on the tangent line */
+pii get_tangent(vector<pll> &C, pll p) {
+  auto gao = [&](int s) {
+    return cyc_tsearch(SZ(C), [&](int x, int y) 
+    { return ori(p, C[x], C[y]) == s; });
+  };
+  return pii(gao(1), gao(-1));
+} // return (a, b), ori(p, C[a], C[b]) >= 0
+
+double ConvexHullDist(vector<pdd> A, vector<pdd> B) {
+    for (auto &p : B) p = {-p.X, -p.Y};
+    auto C = Minkowski(A, B); // assert SZ(C) > 0
+    if (PointInConvex(C, pdd(0, 0))) return 0;
+    double ans = PointSegDist(C.back(), C[0], pdd(0, 0));
+    for (int i = 0; i + 1 < SZ(C); ++i) {
+        ans = min(ans, PointSegDist(C[i], C[i + 1], pdd(0, 0)));
+    }
+    return ans;
+}
+
+// return q's relation with circumcircle of tri(p[0],p[1],p[2])
+bool in_cc(const array<pll, 3> &p, pll q) {
+  __int128 det = 0;
+  for (int i = 0; i < 3; ++i) 
+    det += __int128(abs2(p[i]) - abs2(q)) * cross(p[(i + 1) % 3] - q, p[(i + 2) % 3] - q);
+  return det > 0; // in: >0, on: =0, out: <0
+}
+
+// 0 : not intersect
+// 1 : strictly intersect
+// 2 : overlap
+// 3 : intersect at endpoint
+template<class T>
+std::tuple<int, Point<T>, Point<T>> segmentIntersection(Line<T> l1, Line<T> l2) {
+    if (std::max(l1.a.x, l1.b.x) < std::min(l2.a.x, l2.b.x)) {
+        return {0, Point<T>(), Point<T>()};
+    }
+    if (std::min(l1.a.x, l1.b.x) > std::max(l2.a.x, l2.b.x)) {
+        return {0, Point<T>(), Point<T>()};
+    }
+    if (std::max(l1.a.y, l1.b.y) < std::min(l2.a.y, l2.b.y)) {
+        return {0, Point<T>(), Point<T>()};
+    }
+    if (std::min(l1.a.y, l1.b.y) > std::max(l2.a.y, l2.b.y)) {
+        return {0, Point<T>(), Point<T>()};
+    }
+    if (cross(l1.b - l1.a, l2.b - l2.a) == 0) {
+        if (cross(l1.b - l1.a, l2.a - l1.a) != 0) {
+            return {0, Point<T>(), Point<T>()};
+        } else {
+            auto maxx1 = std::max(l1.a.x, l1.b.x);
+            auto minx1 = std::min(l1.a.x, l1.b.x);
+            auto maxy1 = std::max(l1.a.y, l1.b.y);
+            auto miny1 = std::min(l1.a.y, l1.b.y);
+            auto maxx2 = std::max(l2.a.x, l2.b.x);
+            auto minx2 = std::min(l2.a.x, l2.b.x);
+            auto maxy2 = std::max(l2.a.y, l2.b.y);
+            auto miny2 = std::min(l2.a.y, l2.b.y);
+            Point<T> p1(std::max(minx1, minx2), std::max(miny1, miny2));
+            Point<T> p2(std::min(maxx1, maxx2), std::min(maxy1, maxy2));
+            if (!pointOnSegment(p1, l1)) {
+                std::swap(p1.y, p2.y);
+            }
+            if (p1 == p2) {
+                return {3, p1, p2};
+            } else {
+                return {2, p1, p2};
+            }
+        }
+    }
+    auto cp1 = cross(l2.a - l1.a, l2.b - l1.a);
+    auto cp2 = cross(l2.a - l1.b, l2.b - l1.b);
+    auto cp3 = cross(l1.a - l2.a, l1.b - l2.a);
+    auto cp4 = cross(l1.a - l2.b, l1.b - l2.b);
+    
+    if ((cp1 > 0 && cp2 > 0) || (cp1 < 0 && cp2 < 0) || (cp3 > 0 && cp4 > 0) || (cp3 < 0 && cp4 < 0)) {
+        return {0, Point<T>(), Point<T>()};
+    }
+    
+    Point p = lineIntersection(l1, l2);
+    if (cp1 != 0 && cp2 != 0 && cp3 != 0 && cp4 != 0) {
+        return {1, p, p};
+    } else {
+        return {3, p, p};
+    }
+}
+ 
+template<class T>
+bool segmentInPolygon(Line<T> l, std::vector<Point<T>> p) {
+    int n = p.size();
+    if (!pointInPolygon(l.a, p)) {
+        return false;
+    }
+    if (!pointInPolygon(l.b, p)) {
+        return false;
+    }
+    for (int i = 0; i < n; i++) {
+        auto u = p[i];
+        auto v = p[(i + 1) % n];
+        auto w = p[(i + 2) % n];
+        auto [t, p1, p2] = segmentIntersection(l, Line(u, v));
+        
+        if (t == 1) {
+            return false;
+        }
+        if (t == 0) {
+            continue;
+        }
+        if (t == 2) {
+            if (pointOnSegment(v, l) && v != l.a && v != l.b) {
+                if (cross(v - u, w - v) > 0) {
+                    return false;
+                }
+            }
+        } else {
+            if (p1 != u && p1 != v) {
+                if (pointOnLineLeft(l.a, Line(v, u))
+                    || pointOnLineLeft(l.b, Line(v, u))) {
+                    return false;
+                }
+            } else if (p1 == v) {
+                if (l.a == v) {
+                    if (pointOnLineLeft(u, l)) {
+                        if (pointOnLineLeft(w, l)
+                            && pointOnLineLeft(w, Line(u, v))) {
+                            return false;
+                        }
+                    } else {
+                        if (pointOnLineLeft(w, l)
+                            || pointOnLineLeft(w, Line(u, v))) {
+                            return false;
+                        }
+                    }
+                } else if (l.b == v) {
+                    if (pointOnLineLeft(u, Line(l.b, l.a))) {
+                        if (pointOnLineLeft(w, Line(l.b, l.a))
+                            && pointOnLineLeft(w, Line(u, v))) {
+                            return false;
+                        }
+                    } else {
+                        if (pointOnLineLeft(w, Line(l.b, l.a))
+                            || pointOnLineLeft(w, Line(u, v))) {
+                            return false;
+                        }
+                    }
+                } else {
+                    if (pointOnLineLeft(u, l)) {
+                        if (pointOnLineLeft(w, Line(l.b, l.a))
+                            || pointOnLineLeft(w, Line(u, v))) {
+                            return false;
+                        }
+                    } else {
+                        if (pointOnLineLeft(w, l)
+                            || pointOnLineLeft(w, Line(u, v))) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return true;
+}
