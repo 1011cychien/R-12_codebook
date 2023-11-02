@@ -232,3 +232,20 @@ Poly<P> interpolate(vector<Modint<P>> x, vector<Modint<P>> y) {
   dfs2(dfs2, 1, 0, n - 1);
   return q[1];
 }
+auto shift = [&](FPS f, int k) {
+  FPS a(n + 1), b(n + 1);
+  Mint powk = 1;
+  for (int i = 0; i <= n; i++) {
+    a[i] = ifact[i] * powk;
+    b[i] = fact[i] * f[i];
+    powk = powk * k;
+  }
+  reverse(b.begin(), b.end());
+  auto g = a * b;
+  g.resize(n + 1);
+  reverse(g.begin(), g.end());
+  for (int i = 0; i <= n; i++) {
+    g[i] = g[i] * ifact[i];
+  }
+  return g;
+};
