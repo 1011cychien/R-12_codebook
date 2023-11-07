@@ -1,8 +1,8 @@
 vector<P<T>> convexHull(vector<P<T>> a) {
+  sort(a.begin(), a.end());
+  a.erase(unique(a.begin(), a.end()), a.end());
   int n = a.size();
   if (n <= 1) { return a; }
-  sort(a.begin(), a.end());
-  a.resize(unique(a.begin(), a.end()), a.end());
   vector<P<T>> b(2 * n);
   int j = 0;
   for (int i = 0; i < n; b[j++] = a[i++]) {
@@ -14,5 +14,4 @@ vector<P<T>> convexHull(vector<P<T>> a) {
   b.resize(j - 1);
   return b;
 }
-// nonstrict : change <= 0 to < 0
-// warning : if all point on same line will return {1, 2, 3, 2}
+// nonstrict : change <= 0 to < 0, warning: if all point on same line will return {1, 2, 3, 2}
