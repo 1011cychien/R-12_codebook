@@ -17,9 +17,31 @@
 \usepackage{titlesec}
 \usepackage{amsmath}
 \usepackage{multicol}
+\usepackage{etoolbox}
 \usepackage{codebook}
 \usepackage[CheckSingle, CJKmath]{xeCJK}
 % \usepackage{CJKulem}
+
+
+\setcounter{tocdepth}{2} %set depth of printed table of contets.
+
+\makeatletter
+
+
+\patchcmd{\l@section}
+  {\hfil}
+  {\leaders\hbox{\normalfont$\m@th\mkern \@dotsep mu\hbox{.}\mkern \@dotsep     mu$}\hfill}
+  {}{}
+
+\renewcommand\tableofcontents{%
+    \begin{multicols}{2}[\section*{\contentsname
+        \@mkboth{%
+           \MakeUppercase\contentsname}{\MakeUppercase\contentsname}}]%
+    \@starttoc{toc}%
+    \end{multicols}%
+    }
+
+\makeatother
 
 %\usepackage[T1]{fontenc}
 \usepackage{amsmath, courier, listings, fancyhdr, graphicx}
@@ -102,8 +124,6 @@ stringstyle=\itshape\color{Green4}
 \newpage
 \begin{multicols*}{3}
 
-{\textbf{\tableofcontents}}
-
 \section{Basic}
 \code{vimrc}{basic/vimrc}
 \code{Default code}{basic/default.cpp}
@@ -122,10 +142,28 @@ stringstyle=\itshape\color{Green4}
 \tex{Flow Models}{flow/Model.tex}
 
 \section{Data Structure}
+% \code{<ext/pbds>}{data-structure/darkMagic.cpp}
+% \code{Li Chao Tree}{data-structure/LiChao.cpp}
+% \code{Treap}{data-structure/Treap.cpp}
+% \code{Link-Cut Tree}{data-structure/LCT.cpp}
 \code{<ext/pbds>}{data-structure/darkMagic.cpp}
 \code{Li Chao Tree}{data-structure/LiChao.cpp}
 \code{Treap}{data-structure/Treap.cpp}
 \code{Link-Cut Tree}{data-structure/LCT.cpp}
+\code{2D Segment Tree}{data-structure/2D_Segment_Tree.cpp}
+\code{BIT Kth}{data-structure/BIT_kth.cpp}
+\code{Binary Index Tree}{data-structure/Binary_Index_Tree.cpp}
+\code{DSU}{data-structure/DSU.cpp}
+\code{Interval Container}{data-structure/IntervalContainer.cpp}
+\code{KD Tree}{data-structure/KDTree.cpp}
+\code{Useful KD Tree}{data-structure/KDTree_useful.cpp}
+\code{Leftist Tree}{data-structure/Leftist_Tree.cpp}
+\code{Chmin Chmax}{data-structure/Range_Chmin_Chmax_Add_Range_Sum.cpp}
+\code{Segment Tree}{data-structure/Segment_Tree.cpp}
+\code{Smart Pointer}{data-structure/Smart_Pointer.cpp}
+\code{Sparse Table}{data-structure/Sparse_table.cpp}
+\code{Discrete Trick}{data-structure/discrete_trick.cpp}
+\code{Min Heap}{data-structure/min_heap.cpp}
 
 \section{Graph}
 \code{2-Edge-Connected Components}{graph/EBCC.cpp}
