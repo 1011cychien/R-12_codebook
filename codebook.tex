@@ -79,8 +79,8 @@ stringstyle=\itshape\color{Green4}
 }
 
 
-\university{1RZck}{National Taiwan University}{ntu}
-\team{1RZck}{-1e11, rgnerdplayer, ZCKevin}
+\university{R-12}{National Taiwan University}{ntu}
+\team{R-12}{rgnerdplayer, 2qbingxuan, -1e11}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -89,17 +89,17 @@ stringstyle=\itshape\color{Green4}
 \pagestyle{fancy}
 \fancyfoot{}
 %\fancyfoot[R]{\includegraphics[width=20pt]{ironwood.jpg}}
-\fancyhead[L]{National Taiwan University 1RZck}
+\fancyhead[L]{National Taiwan University R-12}
 \fancyhead[R]{\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
 \renewcommand{\contentsname}{Contents} 
 \scriptsize
 \begingroup
 \let\clearpage\relax
-% \tableofcontents
+\tableofcontents
 \endgroup
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \newpage
+\newpage
 \begin{multicols*}{3}
 
 {\textbf{\tableofcontents}}
@@ -108,6 +108,7 @@ stringstyle=\itshape\color{Green4}
 \code{vimrc}{basic/vimrc}
 \code{Default code}{basic/default.cpp}
 \code{Fast Integer Input}{basic/fastInput.cpp}
+\code{Fast Python Input}{basic/fastInput.py}
 \code{Pragma optimization}{basic/pragma.cpp}
 
 \section{Flows, Matching}
@@ -183,15 +184,42 @@ stringstyle=\itshape\color{Green4}
 \code{$1D/1D$ Convex Optimization}{dynamic-programming/convex1d1d.cpp}
 \tex{Conditon}{dynamic-programming/Condition.tex}
 
-\section{Geometry}
-\code{Basic}{geometry/Point2d_basic.cpp}
-\code{Convex Hull and related}{geometry/hull.cpp}
-\code{Half Plane Intersection}{geometry/halfPlaneIntersection.cpp}
-\code{Triangle Centers}{geometry/centers.cpp}
-\code{Circle}{geometry/circle.cpp}
-\code{Delaunay Triangulation}{geometry/delaunay.cpp}
-\code{ConvexHull Operations (yhchang3)}{geometry/convexHull.cpp}
-\code{Circle Union Area}{geometry/circleUnion.cpp}
+\section{Ckisemetry}
+% 3d/
+\code{Basic}{ckisemetry/Basic.cpp}
+% Circle/
+\code{ConvexHull}{ckisemetry/ConvexHull.cpp}
+\code{CyclicTS}{ckisemetry/CyclicTS.cpp}
+\code{Delaunay}{ckisemetry/Delaunay.cpp}
+\code{DirInPoly}{ckisemetry/DirInPoly.cpp}
+\code{FarthestPair}{ckisemetry/FarthestPair.cpp}
+\code{HPIGeneralLine}{ckisemetry/HPIGeneralLine.cpp}
+\code{HalfPlaneIntersection}{ckisemetry/HalfPlaneIntersection.cpp}
+\code{HullCut}{ckisemetry/HullCut.cpp}
+\code{KDTree}{ckisemetry/KDTree.cpp}
+\code{MinMaxEnclosingRect}{ckisemetry/MinMaxEnclosingRect.cpp}
+\code{MinkowskiSum}{ckisemetry/MinkowskiSum.cpp}
+\code{PointInHull}{ckisemetry/PointInHull.cpp}
+\code{PointInPoly}{ckisemetry/PointInPoly.cpp}
+\code{PointInPolyFast}{ckisemetry/PointInPolyFast.cpp}
+\code{PolyUnion}{ckisemetry/PolyUnion.cpp}
+\code{RotatingSweepLine}{ckisemetry/RotatingSweepLine.cpp}
+\code{SegIsIntersect}{ckisemetry/SegIsIntersect.cpp}
+\code{SegSegDist}{ckisemetry/SegSegDist.cpp}
+\code{SimulateAnnealing}{ckisemetry/SimulateAnnealing.cpp}
+\code{TangentPointToHull}{ckisemetry/TangentPointToHull.cpp}
+\code{TriCenter}{ckisemetry/TriCenter.cpp}
+\code{Voronoi}{ckisemetry/Voronoi.cpp}
+
+% \section{Geometry}
+% \code{Basic}{geometry/Point2d_basic.cpp}
+% \code{Convex Hull and related}{geometry/hull.cpp}
+% \code{Half Plane Intersection}{geometry/halfPlaneIntersection.cpp}
+% \code{Triangle Centers}{geometry/centers.cpp}
+% \code{Circle}{geometry/circle.cpp}
+% \code{Delaunay Triangulation}{geometry/delaunay.cpp}
+% \code{ConvexHull Operations (yhchang3)}{geometry/convexHull.cpp}
+% \code{Circle Union Area}{geometry/circleUnion.cpp}
 
 \section{Miscellaneous}
 \code{Cactus 1}{misc/SmartCactus.cpp}
@@ -201,6 +229,16 @@ stringstyle=\itshape\color{Green4}
 \tex{Matroid Intersection}{misc/Matroid.tex}
 \code{Euler Tour}{misc/EulerTour.cpp}
 \code{SegTree Beats}{misc/beats.cpp}
-\code{unorganized}{misc/random.cpp}
+\code{Decimal}{misc/decimal.py}
+\code{AdaSimpson}{misc/AdaptiveSimpson.cpp}
+\code{SB Tree}{misc/BinarySearchOnFraction.cpp}
+\code{Bitset LCS}{misc/BitsetLCS.cpp}
+\code{Hilbert Curve}{misc/HilbertCurve.cpp}
+\code{Mo on Tree}{misc/MoOnTree.cpp}
+\code{N Queens}{misc/NQueens.cpp}
+\code{Rollback Mo}{misc/RollbackMo.cpp}
+\code{Subset Sum}{misc/SubsetSum.cpp}
+% \code{Min Plus Convolution}{misc/min_plus_convolution.cpp}
+% \code{unorganized}{misc/random.cpp}
 \end{multicols*}
 \end{document}
